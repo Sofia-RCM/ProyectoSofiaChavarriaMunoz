@@ -3,7 +3,7 @@
 using namespace std;
 using namespace sf;
 
-std::map<std::string, sf::Texture> TEXTURES; // definición real
+map<string, Texture> TEXTURES; 
 
 Game::Game() : punctuation(0), counter(20) {}
 
@@ -20,7 +20,7 @@ void Game::run() {
     loadTexture("Gato", "gemaGato.png");
     loadTexture("Galleta", "gemaGalleta.png");
     int size = board.windowSize();
-    sf::RenderWindow window(VideoMode(size, size), "Match Studio Ghibli ");
+    sf::RenderWindow window(VideoMode(900,1000), "Match Studio Ghibli ");
     window.setFramerateLimit(60);
 
     if (font.loadFromFile("arial.ttf") ||
@@ -46,7 +46,7 @@ void Game::run() {
         overText.setPosition(size * 0.5f, size * 0.5f);
     }
     else {
-        cout << "[WARN] No se encontró 'arial.ttf'. El HUD no se mostrará en pantalla.\n";
+       
     }
 
     board.fillBoard();
@@ -76,31 +76,26 @@ void Game::run() {
                         if (cleared > 0) {
                             int chain = 1;
                             punctuation += cleared * 10 * chain;
-                            cout << "[MATCH] Eliminadas: " << cleared
-                                << " | Cadena x" << chain
-                                << " | + " << (cleared * 10 * chain) << " pts\n";
+                           
                             do {
                                 board.applyGravityAndRefill();
                                 cleared = board.findAndClearMatches();
                                 if (cleared > 0) {
                                     ++chain;
                                     punctuation += cleared * 10 * chain;
-                                    cout << "[CHAIN] Eliminadas: " << cleared
-                                        << " | Cadena x" << chain
-                                        << " | + " << (cleared * 10 * chain) << " pts\n";
+                                  
                                 }
                             } while (cleared > 0);
                             --counter;
                             if (counter <= 0) {
                                 counter = 0;
                                 gameOver = true;
-                                cout << "[INFO] Listo. Puntaje final: " << punctuation << "\n";
                             }
                             updateHUD();
                         }
                         else {
                             board.swapCells(selR, selC, r, c);
-                            cout << "[INFO] Intercambio inválido: no generó coincidencia.\n";
+                           
                         }
                         selR = selC = -1;
                     }
@@ -137,15 +132,15 @@ void Game::run() {
     }
 }
 
-bool Game::loadTexture(const std::string& name, const std::string& path) {
-    if (TEXTURES.find(name) != TEXTURES.end()) return true; // ya cargada
+bool Game::loadTexture(const std::string& name, const string& path) {
+    if (TEXTURES.find(name) != TEXTURES.end()) return true; 
 
-    sf::Texture tex;
+    Texture tex;
     if (!tex.loadFromFile(path)) {
-        std::cerr << "[ERROR] No se pudo cargar: " << path << std::endl;
+    
         return false;
     }
-    TEXTURES[name] = std::move(tex);
+    TEXTURES[name] = move(tex);
     return true;
 }
 

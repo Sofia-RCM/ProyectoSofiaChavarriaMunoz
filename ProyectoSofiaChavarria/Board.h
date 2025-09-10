@@ -10,7 +10,7 @@ namespace { class RenderWindow; }
 class Board {
 private:
     static const int N = 8;
-    static const int CELL = 64;
+    static const int CELL = 110;
     Gem matrix[N][N];
     string tipos[5];
     string imagenes[5];
