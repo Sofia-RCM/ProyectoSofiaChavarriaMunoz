@@ -21,7 +21,7 @@ void Game::run() {
     loadTexture("Galleta", "gemaGalleta.png");
 
     int size = board.windowSize();
-    sf::RenderWindow window(VideoMode(900, 1000), "Match Studio Ghibli ");
+    sf::RenderWindow window(VideoMode(900, 900), "Match Studio Ghibli ");
     window.setFramerateLimit(60);
 
     if (font.loadFromFile("arial.ttf") ||
@@ -46,20 +46,31 @@ void Game::run() {
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
         overText.setPosition(size * 0.5f, size * 0.5f);
 
-        // Botón de inicio
         playButton.setSize(Vector2f(200.f, 80.f));
-        playButton.setFillColor(Color(70, 130, 180));
+        playButton.setFillColor(Color(144, 238, 144));
         playButton.setOrigin(100.f, 40.f);
         playButton.setPosition(450.f, 500.f);
 
         playText.setFont(font);
-        playText.setString("JUGAR");
+        playText.setString(" Jugar ");
         playText.setCharacterSize(30);
         playText.setFillColor(Color::White);
         FloatRect tb = playText.getLocalBounds();
         playText.setOrigin(tb.width * 0.5f, tb.height * 0.5f);
         playText.setPosition(playButton.getPosition());
     }
+    if (!bgTexture.loadFromFile("FondoM.png")) {
+        cout << "Error cargando fondo" << endl;
+    }
+    else {
+        bgSprite.setTexture(bgTexture);
+        FloatRect bgBounds = bgSprite.getLocalBounds();
+        bgSprite.setScale(
+            (float)window.getSize().x / bgBounds.width,
+            (float)window.getSize().y / bgBounds.height
+        );
+    }
+
 
     int selR = -1, selC = -1;
 
@@ -68,20 +79,20 @@ void Game::run() {
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed) window.close();
 
-            if (state == 0) { // MENU
+            if (state == 0) { 
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
                     float mx = (float)event.mouseButton.x;
                     float my = (float)event.mouseButton.y;
 
                     if (playButton.getGlobalBounds().contains(mx, my)) {
-                        state = 1; // PLAYING
+                        state = 1; 
                         board.fillBoard();
                         updateHUD();
                     }
                 }
             }
-            else if (state == 1 && !gameOver) { // PLAYING
+            else if (state == 1 && !gameOver) { 
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
                     int mx = event.mouseButton.x;
@@ -111,7 +122,7 @@ void Game::run() {
                                 if (counter <= 0) {
                                     counter = 0;
                                     gameOver = true;
-                                    state = 2; // GAME_OVER
+                                    state = 2; 
                                 }
                                 updateHUD();
                             }
@@ -125,14 +136,16 @@ void Game::run() {
             }
         }
 
-        // Renderizado
-        window.clear(Color(10, 10, 10));
+     
+        window.clear();
+        window.draw(bgSprite);
 
-        if (state == 0) { // MENU
+
+        if (state == 0) { 
             window.draw(playButton);
             window.draw(playText);
         }
-        else if (state == 1) { // PLAYING
+        else if (state == 1) {
             board.drawBoard(window);
 
             if (!gameOver && selR != -1) {
@@ -148,7 +161,7 @@ void Game::run() {
                 window.draw(movesText);
             }
         }
-        else if (state == 2) { // GAME_OVER
+        else if (state == 2) {
             board.drawBoard(window);
 
             RectangleShape shade(Vector2f((float)size, (float)size));
