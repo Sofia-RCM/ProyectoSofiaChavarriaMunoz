@@ -72,10 +72,12 @@ void Gem::setImage(string path, int cell) {
 
     if (!loaded) {
         applyScaleAndPosition();
+     ;
     }
 }
 
 void Gem::draw(sf::RenderWindow& window) {
+
     if (loaded) {
         window.draw(sprite);
     }
