@@ -3,28 +3,33 @@
 #include <string>
 #include "Board.h"
 using namespace sf;
-extern map<string,Texture> TEXTURES;
+extern map<std::string, Texture> TEXTURES;
 
 class Game {
 private:
-    int punctuation;
-    int counter;
-    Board board;
+    int punctuation;  
+    int counter;    
+    Board board;       
 
     bool gameOver = false;
+    bool hudOk = false;
+    int state = 0;  
+
     Font font;
     Text scoreText;
     Text movesText;
     Text overText;
-    bool hudOk = false;
 
-    int state = 0;
     RectangleShape playButton;
     Text playText;
-
     Texture bgTexture;
     Sprite bgSprite;
- 
+
+    RectangleShape restartButton;
+    Text restartText;
+    Texture bgFinalTexture;
+    Sprite bgFinalSprite;
+
     void updateHUD();
 
 public:

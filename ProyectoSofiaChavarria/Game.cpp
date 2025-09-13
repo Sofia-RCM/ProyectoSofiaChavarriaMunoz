@@ -41,10 +41,10 @@ void Game::run() {
         overText.setFont(font);
         overText.setCharacterSize(40);
         overText.setFillColor(Color(255, 230, 0));
-        overText.setString("Listo reina");
+        overText.setString("¡Juego terminado!");
         FloatRect b = overText.getLocalBounds();
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
-        overText.setPosition(size * 0.5f, size * 0.5f);
+        overText.setPosition(450.f, 300.f);
 
         playButton.setSize(Vector2f(200.f, 80.f));
         playButton.setFillColor(Color(144, 238, 144));
@@ -52,15 +52,29 @@ void Game::run() {
         playButton.setPosition(450.f, 500.f);
 
         playText.setFont(font);
-        playText.setString(" Jugar ");
+        playText.setString("Jugar");
         playText.setCharacterSize(30);
         playText.setFillColor(Color::White);
         FloatRect tb = playText.getLocalBounds();
         playText.setOrigin(tb.width * 0.5f, tb.height * 0.5f);
         playText.setPosition(playButton.getPosition());
+
+        restartButton.setSize(Vector2f(200.f, 80.f));
+        restartButton.setFillColor(Color(200, 100, 100));
+        restartButton.setOrigin(100.f, 40.f);
+        restartButton.setPosition(450.f, 500.f);
+
+        restartText.setFont(font);
+        restartText.setString("Reiniciar");
+        restartText.setCharacterSize(28);
+        restartText.setFillColor(Color::White);
+        FloatRect rt = restartText.getLocalBounds();
+        restartText.setOrigin(rt.width * 0.5f, rt.height * 0.5f);
+        restartText.setPosition(restartButton.getPosition());
     }
+
     if (!bgTexture.loadFromFile("FondoM.png")) {
-        cout << "Error cargando fondo" << endl;
+        cout << "Error cargando FondoM.png" << endl;
     }
     else {
         bgSprite.setTexture(bgTexture);
@@ -71,6 +85,17 @@ void Game::run() {
         );
     }
 
+    if (!bgFinalTexture.loadFromFile("FondoFinal.png")) {
+        cout << "Error cargando FondoFinal.png" << endl;
+    }
+    else {
+        bgFinalSprite.setTexture(bgFinalTexture);
+        FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
+        bgFinalSprite.setScale(
+            (float)window.getSize().x / bgBounds2.width,
+            (float)window.getSize().y / bgBounds2.height
+        );
+    }
 
     int selR = -1, selC = -1;
 
@@ -79,20 +104,23 @@ void Game::run() {
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed) window.close();
 
-            if (state == 0) { 
+            if (state == 0) {
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
                     float mx = (float)event.mouseButton.x;
                     float my = (float)event.mouseButton.y;
 
                     if (playButton.getGlobalBounds().contains(mx, my)) {
-                        state = 1; 
+                        state = 1;
+                        punctuation = 0;
+                        counter = 20;
+                        gameOver = false;
                         board.fillBoard();
                         updateHUD();
                     }
                 }
             }
-            else if (state == 1 && !gameOver) { 
+            else if (state == 1 && !gameOver) {
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
                     int mx = event.mouseButton.x;
@@ -122,7 +150,7 @@ void Game::run() {
                                 if (counter <= 0) {
                                     counter = 0;
                                     gameOver = true;
-                                    state = 2; 
+                                    state = 2;
                                 }
                                 updateHUD();
                             }
@@ -134,14 +162,27 @@ void Game::run() {
                     }
                 }
             }
+            else if (state == 2) {
+                if (event.type == Event::MouseButtonPressed &&
+                    event.mouseButton.button == Mouse::Left) {
+                    float mx = (float)event.mouseButton.x;
+                    float my = (float)event.mouseButton.y;
+
+                    if (restartButton.getGlobalBounds().contains(mx, my)) {
+                        punctuation = 0;
+                        counter = 20;
+                        gameOver = false;
+                        updateHUD();
+                        state = 0;
+                    }
+                }
+            }
         }
 
-     
         window.clear();
-        window.draw(bgSprite);
 
-
-        if (state == 0) { 
+        if (state == 0) {
+            window.draw(bgSprite);
             window.draw(playButton);
             window.draw(playText);
         }
@@ -162,13 +203,10 @@ void Game::run() {
             }
         }
         else if (state == 2) {
-            board.drawBoard(window);
-
-            RectangleShape shade(Vector2f((float)size, (float)size));
-            shade.setFillColor(Color(0, 0, 0, 150));
-            shade.setPosition(0.f, 0.f);
-            window.draw(shade);
+            window.draw(bgFinalSprite);
             window.draw(overText);
+            window.draw(restartButton);
+            window.draw(restartText);
         }
 
         window.display();
