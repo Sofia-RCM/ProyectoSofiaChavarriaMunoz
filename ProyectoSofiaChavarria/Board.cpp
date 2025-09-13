@@ -34,8 +34,7 @@ void Board::fillBoard() {
             setGem(i, j, g);
         }
     }
-    if (fails == 0) cout << "[OK] Todas las texturas cargaron.\n";
-    else            cout << "[INFO] Texturas fallidas: " << fails << "\n";
+    if (fails == 0);
 }
 
 void Board::drawBoard(sf::RenderWindow& window) {

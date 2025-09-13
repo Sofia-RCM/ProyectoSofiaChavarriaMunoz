@@ -20,7 +20,7 @@ void Game::run() {
     loadTexture("Gato", "gemaGato.png");
     loadTexture("Galleta", "gemaGalleta.png");
     int size = board.windowSize();
-    sf::RenderWindow window(VideoMode(900,1000), "Match Studio Ghibli ");
+    sf::RenderWindow window(VideoMode(size,size + 80 ), "Match Studio Ghibli ");
     window.setFramerateLimit(60);
 
     if (font.loadFromFile("arial.ttf") ||
@@ -30,12 +30,12 @@ void Game::run() {
         scoreText.setFont(font);
         scoreText.setCharacterSize(20);
         scoreText.setFillColor(Color::White);
-        scoreText.setPosition(8.f, 6.f);
+        scoreText.setPosition(10.f,size + 10.f);
 
         movesText.setFont(font);
         movesText.setCharacterSize(20);
         movesText.setFillColor(Color::White);
-        movesText.setPosition((float)size - 220.f, 6.f);
+        movesText.setPosition((float)size - 220.f, 10.f);
 
         overText.setFont(font);
         overText.setCharacterSize(40);
@@ -113,7 +113,7 @@ void Game::run() {
         if (hudOk) {
             RectangleShape bar(Vector2f((float)size, 30.f));
             bar.setFillColor(Color(0, 0, 0, 110));
-            bar.setPosition(0.f, 0.f);
+            bar.setPosition(0.f,(float)size);
             window.draw(bar);
 
             window.draw(scoreText);

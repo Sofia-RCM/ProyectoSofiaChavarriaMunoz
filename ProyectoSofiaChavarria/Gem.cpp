@@ -46,12 +46,10 @@ void Gem::setTipoGem(string& tipo) {
     if (TEXTURES.find(tipo) != TEXTURES.end()) {
         sprite.setTexture(TEXTURES[tipo]);
 
-        // Escalar para que encaje en la celda
         auto bounds = sprite.getLocalBounds();
         float scale = (float)cellSize / bounds.width;
         sprite.setScale(scale, scale);
 
-        // Posición
         sprite.setPosition(col * cellSize, row * cellSize);
 
     }
@@ -74,14 +72,10 @@ void Gem::setImage(string path, int cell) {
 
     if (!loaded) {
         applyScaleAndPosition();
-        cerr << "[WARN] No se pudo cargar: " << imagePath << "\n";
     }
 }
 
 void Gem::draw(sf::RenderWindow& window) {
-  /*  sprite.setTexture(texture);
-    applyScaleAndPosition();*/
-
     if (loaded) {
         window.draw(sprite);
     }

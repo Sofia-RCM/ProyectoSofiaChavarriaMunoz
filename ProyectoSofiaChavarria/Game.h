@@ -3,7 +3,7 @@
 #include <string>
 #include "Board.h"
 using namespace sf;
-extern std::map<std::string, sf::Texture> TEXTURES;
+extern map<string, Texture> TEXTURES;
 
 
 class Game {
@@ -25,6 +25,6 @@ private:
 public:
     Game();
     void run();
-    bool loadTexture(const std::string& name, const std::string& path);
+    bool loadTexture(const string& name, const string& path);
 
 };
