@@ -40,8 +40,8 @@ void Game::run() {
 
         overText.setFont(font);
         overText.setCharacterSize(40);
-        overText.setFillColor(Color(255, 230, 0));
-        overText.setString("¡Juego terminado!");
+        overText.setFillColor(Color(0, 100, 0));
+        overText.setString("Juego terminado");
         FloatRect b = overText.getLocalBounds();
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
         overText.setPosition(450.f, 300.f);
@@ -60,7 +60,7 @@ void Game::run() {
         playText.setPosition(playButton.getPosition());
 
         restartButton.setSize(Vector2f(200.f, 80.f));
-        restartButton.setFillColor(Color(200, 100, 100));
+        restartButton.setFillColor(Color(144, 238, 144));
         restartButton.setOrigin(100.f, 40.f);
         restartButton.setPosition(450.f, 500.f);
 
@@ -73,29 +73,21 @@ void Game::run() {
         restartText.setPosition(restartButton.getPosition());
     }
 
-    if (!bgTexture.loadFromFile("FondoM.png")) {
-        cout << "Error cargando FondoM.png" << endl;
-    }
-    else {
-        bgSprite.setTexture(bgTexture);
-        FloatRect bgBounds = bgSprite.getLocalBounds();
-        bgSprite.setScale(
-            (float)window.getSize().x / bgBounds.width,
-            (float)window.getSize().y / bgBounds.height
-        );
-    }
+    bgTexture.loadFromFile("FondoM.png");
+    bgSprite.setTexture(bgTexture);
+    FloatRect bgBounds = bgSprite.getLocalBounds();
+    bgSprite.setScale(
+        (float)window.getSize().x / bgBounds.width,
+        (float)window.getSize().y / bgBounds.height
+    );
 
-    if (!bgFinalTexture.loadFromFile("FondoFinal.png")) {
-        cout << "Error cargando FondoFinal.png" << endl;
-    }
-    else {
-        bgFinalSprite.setTexture(bgFinalTexture);
-        FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
-        bgFinalSprite.setScale(
-            (float)window.getSize().x / bgBounds2.width,
-            (float)window.getSize().y / bgBounds2.height
-        );
-    }
+    bgFinalTexture.loadFromFile("Fondo2.png");
+    bgFinalSprite.setTexture(bgFinalTexture);
+    FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
+    bgFinalSprite.setScale(
+        (float)window.getSize().x / bgBounds2.width,
+        (float)window.getSize().y / bgBounds2.height
+    );
 
     int selR = -1, selC = -1;
 
@@ -213,7 +205,7 @@ void Game::run() {
     }
 }
 
-bool Game::loadTexture(const std::string& name, const string& path) {
+bool Game::loadTexture(const string& name, const string& path) {
     if (TEXTURES.find(name) != TEXTURES.end()) return true;
 
     Texture tex;
