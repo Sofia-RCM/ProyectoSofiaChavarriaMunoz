@@ -41,13 +41,13 @@ void Game::run() {
         overText.setFont(font);
         overText.setCharacterSize(40);
         overText.setFillColor(Color(0, 100, 0));
-        overText.setString("Juego terminado");
+        overText.setString("¡Juego terminado!");
         FloatRect b = overText.getLocalBounds();
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
         overText.setPosition(450.f, 300.f);
 
         playButton.setSize(Vector2f(200.f, 80.f));
-        playButton.setFillColor(Color(144, 238, 144));
+        playButton.setFillColor(Color(0, 100, 0));
         playButton.setOrigin(100.f, 40.f);
         playButton.setPosition(450.f, 500.f);
 
@@ -60,7 +60,7 @@ void Game::run() {
         playText.setPosition(playButton.getPosition());
 
         restartButton.setSize(Vector2f(200.f, 80.f));
-        restartButton.setFillColor(Color(144, 238, 144));
+        restartButton.setFillColor(Color(0, 100, 0));
         restartButton.setOrigin(100.f, 40.f);
         restartButton.setPosition(450.f, 500.f);
 
@@ -71,6 +71,19 @@ void Game::run() {
         FloatRect rt = restartText.getLocalBounds();
         restartText.setOrigin(rt.width * 0.5f, rt.height * 0.5f);
         restartText.setPosition(restartButton.getPosition());
+
+        exitButton.setSize(Vector2f(200.f, 80.f));
+        exitButton.setFillColor(Color(100, 149, 237));
+        exitButton.setOrigin(100.f, 40.f);
+        exitButton.setPosition(450.f, 600.f);
+
+        exitText.setFont(font);
+        exitText.setString("Salir");
+        exitText.setCharacterSize(28);
+        exitText.setFillColor(Color::White);
+        FloatRect et = exitText.getLocalBounds();
+        exitText.setOrigin(et.width * 0.5f, et.height * 0.5f);
+        exitText.setPosition(exitButton.getPosition());
     }
 
     bgTexture.loadFromFile("FondoM.png");
@@ -167,6 +180,9 @@ void Game::run() {
                         updateHUD();
                         state = 0;
                     }
+                    else if (exitButton.getGlobalBounds().contains(mx, my)) {
+                        window.close();
+                    }
                 }
             }
         }
@@ -199,13 +215,15 @@ void Game::run() {
             window.draw(overText);
             window.draw(restartButton);
             window.draw(restartText);
+            window.draw(exitButton);
+            window.draw(exitText);
         }
 
         window.display();
     }
 }
 
-bool Game::loadTexture(const string& name, const string& path) {
+bool Game::loadTexture(const std::string& name, const string& path) {
     if (TEXTURES.find(name) != TEXTURES.end()) return true;
 
     Texture tex;

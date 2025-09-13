@@ -27,6 +27,8 @@ private:
 
     RectangleShape restartButton;
     Text restartText;
+    RectangleShape exitButton;
+    Text exitText;
     Texture bgFinalTexture;
     Sprite bgFinalSprite;
 
