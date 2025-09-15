@@ -32,6 +32,7 @@ public:
     void setGrid(int r, int c, int cell);
     void setImage(string path, int cell);
 
+    void setPosition(float cx, float cy);
     void draw(sf::RenderWindow& window);
     bool isEmpty();
 };

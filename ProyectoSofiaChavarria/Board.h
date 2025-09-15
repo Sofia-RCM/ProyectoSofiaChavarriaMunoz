@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
 #include "Gem.h"
+#include <SFML/Graphics.hpp>
 using namespace std;
 using namespace sf;
-
-namespace { class RenderWindow; }
-
 
 class Board {
 private:
@@ -14,20 +12,24 @@ private:
     Gem matrix[N][N];
     string tipos[5];
     string imagenes[5];
+    int offsetX = 0;
+    int offsetY = 0;
 
 public:
     Board();
 
     void setGem(int fila, int col, Gem g);
     void fillBoard();
-    void drawBoard(sf::RenderWindow& window);
+    void drawBoard(RenderWindow& window);
     int windowSize();
     bool screenToCell(int mouseX, int mouseY, int& fila, int& col);
     void swapCells(int r1, int c1, int r2, int c2);
-    void drawSelection(sf::RenderWindow& window, int r, int c);
+    void drawSelection(RenderWindow& window, int r, int c);
 
     int findMatches(bool marks[8][8]);
     int clearMarked(const bool marks[8][8]);
     int findAndClearMatches();
     void applyGravityAndRefill();
+
+    void setOffset(int x, int y) { offsetX = x; offsetY = y; }
 };
