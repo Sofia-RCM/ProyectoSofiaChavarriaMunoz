@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include <iostream>
 using namespace std;
 using namespace sf;
@@ -41,7 +41,7 @@ void Game::run() {
         overText.setFont(font);
         overText.setCharacterSize(40);
         overText.setFillColor(Color(0, 100, 0));
-        overText.setString("�Juego terminado!");
+        overText.setString("¡Juego terminado!");
         FloatRect b = overText.getLocalBounds();
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
         overText.setPosition(450.f, 300.f);
@@ -73,7 +73,7 @@ void Game::run() {
         restartText.setPosition(restartButton.getPosition());
 
         exitButton.setSize(Vector2f(200.f, 80.f));
-        exitButton.setFillColor(Color(100, 149, 237));
+        exitButton.setFillColor(Color(0, 100, 0));
         exitButton.setOrigin(100.f, 40.f);
         exitButton.setPosition(450.f, 600.f);
 
@@ -211,6 +211,16 @@ void Game::run() {
             }
         }
         else if (state == 2) {
+           
+            string finalMsg = "Puntos: " + to_string(punctuation);
+            overText.setString(finalMsg);
+
+          
+            FloatRect b = overText.getLocalBounds();
+            overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
+            overText.setPosition(450.f, 300.f);
+
+         
             window.draw(bgFinalSprite);
             window.draw(overText);
             window.draw(restartButton);
