@@ -1,6 +1,5 @@
 ﻿#include "Gem.h"
 #include <iostream>
-#include "Game.h"
 using namespace std;
 using namespace sf;
 
@@ -40,19 +39,16 @@ void Gem::applyScaleAndPosition() {
 void Gem::setTipoGem(string& tipo) {
     tipoGem = tipo;
     loaded = true;
+    sprite.setTexture(ResourceManager::getTexture(tipo));
 
-    if (TEXTURES.find(tipo) != TEXTURES.end()) {
-        sprite.setTexture(TEXTURES[tipo]);
-        auto bounds = sprite.getLocalBounds();
-        float scale = cellSize / bounds.width;
-        sprite.setScale(scale, scale);
-        sprite.setPosition(col * cellSize, row * cellSize);
-    }
+    auto bounds = sprite.getLocalBounds();
+    float scale = cellSize / bounds.width;
+    sprite.setScale(scale, scale);
+    sprite.setPosition(col * cellSize, row * cellSize);
 }
 
 string Gem::getTipoGem() { return tipoGem; }
-string Gem::getImage() { return imagePath; }
-bool   Gem::isLoaded() { return loaded; }
+bool Gem::isLoaded() { return loaded; }
 
 void Gem::setGrid(int r, int c, int cell) {
     row = r;
@@ -61,30 +57,16 @@ void Gem::setGrid(int r, int c, int cell) {
     applyScaleAndPosition();
 }
 
-void Gem::setImage(string path, int cell) {
-    imagePath = path;
-    cellSize = cell;
-    if (!loaded) {
-        applyScaleAndPosition();
-    }
-}
-
 void Gem::setPosition(float cx, float cy) {
-    if (loaded) {
-        sprite.setPosition(cx, cy);
-    }
+    if (loaded) sprite.setPosition(cx, cy);
 }
 
 void Gem::draw(RenderWindow& window) {
-    if (loaded) {
-        window.draw(sprite);
-    }
+    if (loaded) window.draw(sprite);
     else {
         window.draw(cross1);
         window.draw(cross2);
     }
 }
 
-bool Gem::isEmpty() {
-    return tipoGem.empty();
-}
+bool Gem::isEmpty() { return tipoGem.empty(); }

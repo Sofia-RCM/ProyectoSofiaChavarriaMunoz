@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <SFML/Graphics.hpp>
+#include "ResourceManager.h"
 using namespace std;
 using namespace sf;
 
@@ -10,11 +11,8 @@ private:
     int row = 0;
     int col = 0;
     int cellSize = 64;
-
-    Texture texture;
-    Sprite  sprite;
+    Sprite sprite;
     bool loaded = false;
-    string imagePath;
 
     RectangleShape cross1;
     RectangleShape cross2;
@@ -26,13 +24,9 @@ public:
     void setTipoGem(string& tipo);
     string getTipoGem();
 
-    string getImage();
-    bool   isLoaded();
-
+    bool isLoaded();
     void setGrid(int r, int c, int cell);
-    void setImage(string path, int cell);
-
     void setPosition(float cx, float cy);
-    void draw(sf::RenderWindow& window);
+    void draw(RenderWindow& window);
     bool isEmpty();
 };
