@@ -25,9 +25,12 @@ public:
     bool screenToCell(int mouseX, int mouseY, int& fila, int& col);
     void swapCells(int r1, int c1, int r2, int c2);
     void drawSelection(RenderWindow& window, int r, int c);
-    int findMatches(bool marks[BOARD_SIZE][BOARD_SIZE]);
+    int findMatches(bool marks[BOARD_SIZE][BOARD_SIZE], int lens[BOARD_SIZE][BOARD_SIZE]);
     int clearMarked(const bool marks[BOARD_SIZE][BOARD_SIZE]);
     int findAndClearMatches();
     void applyGravityAndRefill();
     void setOffset(int x, int y) { offsetX = x; offsetY = y; }
+    void removeGem(int r, int c);
+private:
+    void createSpecialGem(int r, int c, const string& tipo);
 };

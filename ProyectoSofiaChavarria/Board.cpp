@@ -90,10 +90,10 @@ void Board::drawSelection(RenderWindow& window, int r, int c) {
     window.draw(sel);
 }
 
-int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE]) {
+int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE], int lens[BOARD_SIZE][BOARD_SIZE]) {
     for (int r = 0; r < BOARD_SIZE; ++r)
         for (int c = 0; c < BOARD_SIZE; ++c)
-            marks[r][c] = false;
+            marks[r][c] = false, lens[r][c] = 0;
     int totalMarked = 0;
     for (int r = 0; r < BOARD_SIZE; ++r) {
         int c = 0;
@@ -103,7 +103,10 @@ int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE]) {
             int k = c + 1;
             while (k < BOARD_SIZE && matrix[r][k] && matrix[r][k]->isLoaded() && matrix[r][k]->getType() == tipo) k++;
             int len = k - c;
-            if (len >= 3) for (int x = c; x < k; x++) if (!marks[r][x]) { marks[r][x] = true; totalMarked++; }
+            if (len >= 3) {
+                for (int x = c; x < k; x++) marks[r][x] = true, lens[r][x] = len;
+                totalMarked += len;
+            }
             c = (len > 1 ? k : c + 1);
         }
     }
@@ -115,11 +118,23 @@ int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE]) {
             int k = r + 1;
             while (k < BOARD_SIZE && matrix[k][c] && matrix[k][c]->isLoaded() && matrix[k][c]->getType() == tipo) k++;
             int len = k - r;
-            if (len >= 3) for (int x = r; x < k; x++) if (!marks[x][c]) { marks[x][c] = true; totalMarked++; }
+            if (len >= 3) {
+                for (int x = r; x < k; x++) marks[x][c] = true, lens[x][c] = len;
+                totalMarked += len;
+            }
             r = (len > 1 ? k : r + 1);
         }
     }
     return totalMarked;
+}
+
+void Board::createSpecialGem(int r, int c, const string& tipo) {
+    delete matrix[r][c];
+    if (rand() % 2 == 0)
+        matrix[r][c] = new BombGem("Bomb");
+    else
+        matrix[r][c] = new IceGem();
+    matrix[r][c]->setGrid(r, c, CELL_SIZE);
 }
 
 int Board::clearMarked(const bool marks[BOARD_SIZE][BOARD_SIZE]) {
@@ -136,10 +151,26 @@ int Board::clearMarked(const bool marks[BOARD_SIZE][BOARD_SIZE]) {
 
 int Board::findAndClearMatches() {
     bool marks[BOARD_SIZE][BOARD_SIZE];
-    int marked = findMatches(marks);
+    int lens[BOARD_SIZE][BOARD_SIZE];
+    int marked = findMatches(marks, lens);
     if (marked == 0) return 0;
+    for (int r = 0; r < BOARD_SIZE; r++) {
+        for (int c = 0; c < BOARD_SIZE; c++) {
+            if (marks[r][c] && lens[r][c] >= 4) {
+                createSpecialGem(r, c, matrix[r][c] ? matrix[r][c]->getType() : "");
+            }
+        }
+    }
+    for (int r = 0; r < BOARD_SIZE; r++) {
+        for (int c = 0; c < BOARD_SIZE; c++) {
+            if (marks[r][c] && matrix[r][c] && matrix[r][c]->isSpecial()) {
+                matrix[r][c]->onMatch(*this);
+            }
+        }
+    }
     return clearMarked(marks);
 }
+
 
 void Board::applyGravityAndRefill() {
     for (int c = 0; c < BOARD_SIZE; ++c) {
@@ -161,4 +192,9 @@ void Board::applyGravityAndRefill() {
             write--;
         }
     }
+}
+void Board::removeGem(int r, int c) {
+    if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+    delete matrix[r][c];
+    matrix[r][c] = nullptr;
 }
