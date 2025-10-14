@@ -3,18 +3,10 @@
 
 class IceGem : public Gem {
 private:
-    int durability;
+    int hitsRemaining;
 public:
-    IceGem() {
-        type = "Ice";
-        sprite.setTexture(ResourceManager::getTexture("Ponyo"));
-        loaded = true;
-        durability = 2;
-    }
-    void onMatch(Board& board) override {
-        durability--;
-    }
-    void draw(RenderWindow& window) override { window.draw(sprite); }
-    string getType() const override { return type; }
-    bool isSpecial() const override { return true; }
+    IceGem();
+    void onMatch() override;
+    string getType() const override { return "Ice"; }
+    int getHits() const { return hitsRemaining; }
 };

@@ -1,41 +1,36 @@
 #pragma once
-#include <string>
 #include <SFML/Graphics.hpp>
+#include <string>
+#include <map>
 using namespace std;
 using namespace sf;
 
 extern map<string, Texture> TEXTURES;
 
 class Gem {
-private:
+protected:
     string tipoGem;
     int row = 0;
     int col = 0;
     int cellSize = 64;
-
-    Texture texture;
-    Sprite sprite;
     bool loaded = false;
-    string imagePath;
-
-    RectangleShape cross1;
-    RectangleShape cross2;
+    Sprite sprite;
 
     void applyScaleAndPosition();
 
 public:
-    Gem();
+    Gem() = default;
+    virtual ~Gem() = default;
 
-    void setTipoGem(string& tipo);
-    string getTipoGem();
-
-    string getImage();
-    bool isLoaded();
-
+    virtual void setTipoGem(string& tipo);
+    virtual string getTipoGem();
     void setGrid(int r, int c, int cell);
-    void setImage(string path, int cell);
-
-    void setPosition(float cx, float cy);
-    void draw(RenderWindow& window);
-    bool isEmpty();
+    virtual void setPosition(float cx, float cy);
+    virtual void draw(RenderWindow& window);
+    virtual bool isEmpty();
+    virtual bool isLoaded();
+    virtual void onMatch() = 0;
+    virtual string getType() const = 0;
+    int getRow() const { return row; }
+    int getCol() const { return col; }
 };

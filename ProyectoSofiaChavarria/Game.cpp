@@ -162,7 +162,9 @@ void Game::run() {
                                         punctuation += cleared * 10 * chain;
                                     }
                                 } while (cleared > 0);
-
+                                if (!board.hasPossibleMoves()) {
+                                    board.shuffleBoard();
+                                }
                                 --counter;
                                 if (counter <= 0) {
                                     counter = 0;
