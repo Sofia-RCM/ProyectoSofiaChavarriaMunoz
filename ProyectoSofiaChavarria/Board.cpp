@@ -32,14 +32,14 @@ void Board::fillBoard() {
                 valido = true;
                 tipo = tipos[rand() % 5];
 
-                
+
                 if (j >= 2 &&
                     matrix[i][j - 1].getTipoGem() == tipo &&
                     matrix[i][j - 2].getTipoGem() == tipo) {
                     valido = false;
                 }
 
-               
+
                 if (i >= 2 &&
                     matrix[i - 1][j].getTipoGem() == tipo &&
                     matrix[i - 2][j].getTipoGem() == tipo) {
@@ -52,6 +52,9 @@ void Board::fillBoard() {
             g.setGrid(i, j, CELL);
             setGem(i, j, g);
         }
+    }
+    while (!hasPossibleMoves()) {
+        shuffleBoard();
     }
 }
 
@@ -267,6 +270,63 @@ void Board::applyGravityAndRefill() {
             g.setGrid(write, c, CELL);
             matrix[write][c] = g;
             write--;
+        }
+    }
+}
+bool Board::hasPossibleMoves() {
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
+          
+            if (c + 1 < N && wouldFormMatch(r, c, r, c + 1)) return true;
+           
+            if (r + 1 < N && wouldFormMatch(r, c, r + 1, c)) return true;
+        }
+    }
+    return false;
+}
+
+void Board::shuffleBoard() {
+    vector<string> tiposTemp;
+    for (int i = 0; i < N; ++i)
+        for (int j = 0; j < N; ++j)
+            tiposTemp.push_back(matrix[i][j].getTipoGem());
+
+    srand((unsigned)time(0));
+    for (size_t i = 0; i < tiposTemp.size(); ++i) {
+        int randIndex = rand() % tiposTemp.size();
+        swap(tiposTemp[i], tiposTemp[randIndex]);
+    }
+    int index = 0;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            string tipo = tiposTemp[index++];
+            Gem g;
+            g.setTipoGem(tipo);
+            g.setGrid(i, j, CELL);
+            setGem(i, j, g);
+        }
+    }
+
+    while (findAndClearMatches() > 0 || !hasPossibleMoves()) {
+        tiposTemp.clear();
+        for (int i = 0; i < N; ++i)
+            for (int j = 0; j < N; ++j)
+                tiposTemp.push_back(tipos[rand() % 5]);
+
+        for (size_t i = 0; i < tiposTemp.size(); ++i) {
+            int randIndex = rand() % tiposTemp.size();
+            swap(tiposTemp[i], tiposTemp[randIndex]);
+        }
+
+        index = 0;
+        for (int i = 0; i < N; ++i) {
+            for (int j = 0; j < N; ++j) {
+                string tipo = tiposTemp[index++];
+                Gem g;
+                g.setTipoGem(tipo);
+                g.setGrid(i, j, CELL);
+                setGem(i, j, g);
+            }
         }
     }
 }

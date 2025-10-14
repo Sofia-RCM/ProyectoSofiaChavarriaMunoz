@@ -37,4 +37,7 @@ public:
     bool wouldFormMatch(int r1, int c1, int r2, int c2);
 
     void setOffset(int x, int y) { offsetX = x; offsetY = y; }
+    bool hasPossibleMoves();
+    void shuffleBoard();
+
 };
