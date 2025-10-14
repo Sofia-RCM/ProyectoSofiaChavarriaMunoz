@@ -3,6 +3,8 @@
 #include <string>
 #include "Board.h"
 using namespace sf;
+using namespace std;
+
 extern map<string, Texture> TEXTURES;
 
 class Game {

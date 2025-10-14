@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sf;
 
+extern map<string, Texture> TEXTURES;
+
 class Gem {
 private:
     string tipoGem;
@@ -12,7 +14,7 @@ private:
     int cellSize = 64;
 
     Texture texture;
-    Sprite  sprite;
+    Sprite sprite;
     bool loaded = false;
     string imagePath;
 
@@ -23,16 +25,17 @@ private:
 
 public:
     Gem();
+
     void setTipoGem(string& tipo);
     string getTipoGem();
 
     string getImage();
-    bool   isLoaded();
+    bool isLoaded();
 
     void setGrid(int r, int c, int cell);
     void setImage(string path, int cell);
 
     void setPosition(float cx, float cy);
-    void draw(sf::RenderWindow& window);
+    void draw(RenderWindow& window);
     bool isEmpty();
 };

@@ -1,24 +1,17 @@
 #include "Board.h"
+#include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 using namespace std;
 using namespace sf;
 
-Board::Board() {
-    for (int i = 0; i < BOARD_SIZE; i++)
-        for (int j = 0; j < BOARD_SIZE; j++)
-            matrix[i][j] = nullptr;
-}
+Board::Board() {}
 
-Board::~Board() {
-    for (int i = 0; i < BOARD_SIZE; i++)
-        for (int j = 0; j < BOARD_SIZE; j++)
-            delete matrix[i][j];
-}
-
-void Board::setGem(int fila, int col, Gem* g) {
-    if (fila >= 0 && fila < BOARD_SIZE && col >= 0 && col < BOARD_SIZE)
+void Board::setGem(int fila, int col, Gem g) {
+    if (fila >= 0 && fila < N && col >= 0 && col < N) {
         matrix[fila][col] = g;
+    }
 }
 
 void Board::fillBoard() {
@@ -27,100 +20,205 @@ void Board::fillBoard() {
     tipos[2] = "Parti";
     tipos[3] = "Gato";
     tipos[4] = "Galleta";
-    srand(static_cast<unsigned>(time(0)));
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            delete matrix[i][j];
-            int r = rand() % 5;
-            matrix[i][j] = new NormalGem(tipos[r]);
-            matrix[i][j]->setGrid(i, j, CELL_SIZE);
+
+    srand((unsigned)time(0));
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            string tipo;
+            bool valido;
+
+            do {
+                valido = true;
+                tipo = tipos[rand() % 5];
+
+                
+                if (j >= 2 &&
+                    matrix[i][j - 1].getTipoGem() == tipo &&
+                    matrix[i][j - 2].getTipoGem() == tipo) {
+                    valido = false;
+                }
+
+               
+                if (i >= 2 &&
+                    matrix[i - 1][j].getTipoGem() == tipo &&
+                    matrix[i - 2][j].getTipoGem() == tipo) {
+                    valido = false;
+                }
+            } while (!valido);
+
+            Gem g;
+            g.setTipoGem(tipo);
+            g.setGrid(i, j, CELL);
+            setGem(i, j, g);
         }
     }
 }
 
+
 void Board::drawBoard(RenderWindow& window) {
-    RectangleShape cell(Vector2f(static_cast<float>(CELL_SIZE), static_cast<float>(CELL_SIZE)));
+    RectangleShape cell(Vector2f(CELL, CELL));
     cell.setOutlineThickness(1);
     cell.setOutlineColor(Color(0, 80, 0));
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            cell.setPosition(static_cast<float>(j * CELL_SIZE + offsetX), static_cast<float>(i * CELL_SIZE + offsetY));
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cell.setPosition(j * CELL + offsetX, i * CELL + offsetY);
+
             bool dark = ((i + j) % 2 == 1);
             cell.setFillColor(dark ? Color(100, 200, 100) : Color(170, 255, 170));
             window.draw(cell);
-            if (matrix[i][j]) {
-                float cx = static_cast<float>(j * CELL_SIZE + offsetX + CELL_SIZE / 2);
-                float cy = static_cast<float>(i * CELL_SIZE + offsetY + CELL_SIZE / 2);
-                matrix[i][j]->setPosition(cx, cy);
-                matrix[i][j]->draw(window);
-            }
+
+            float cx = j * CELL + offsetX + CELL / 2;
+            float cy = i * CELL + offsetY + CELL / 2;
+            matrix[i][j].setPosition(cx, cy);
+            matrix[i][j].draw(window);
         }
     }
 }
 
-int Board::windowSize() { return BOARD_SIZE * CELL_SIZE; }
+int Board::windowSize() { return N * CELL; }
 
 bool Board::screenToCell(int mouseX, int mouseY, int& fila, int& col) {
     int xx = mouseX - offsetX;
     int yy = mouseY - offsetY;
     if (xx < 0 || yy < 0) return false;
-    fila = yy / CELL_SIZE;
-    col = xx / CELL_SIZE;
-    return (fila >= 0 && fila < BOARD_SIZE && col >= 0 && col < BOARD_SIZE);
+    fila = yy / CELL;
+    col = xx / CELL;
+    return (fila >= 0 && fila < N && col >= 0 && col < N);
 }
 
 void Board::swapCells(int r1, int c1, int r2, int c2) {
-    if (r1 < 0 || r1 >= BOARD_SIZE || c1 < 0 || c1 >= BOARD_SIZE) return;
-    if (r2 < 0 || r2 >= BOARD_SIZE || c2 < 0 || c2 >= BOARD_SIZE) return;
+    if (r1 < 0 || r1 >= N || c1 < 0 || c1 >= N) return;
+    if (r2 < 0 || r2 >= N || c2 < 0 || c2 >= N) return;
     if (r1 == r2 && c1 == c2) return;
-    Gem* tmp = matrix[r1][c1];
+
+    Gem tmp = matrix[r1][c1];
     matrix[r1][c1] = matrix[r2][c2];
     matrix[r2][c2] = tmp;
-    matrix[r1][c1]->setGrid(r1, c1, CELL_SIZE);
-    matrix[r2][c2]->setGrid(r2, c2, CELL_SIZE);
+
+    matrix[r1][c1].setGrid(r1, c1, CELL);
+    matrix[r2][c2].setGrid(r2, c2, CELL);
 }
 
 void Board::drawSelection(RenderWindow& window, int r, int c) {
-    if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
-    RectangleShape sel(Vector2f(static_cast<float>(CELL_SIZE), static_cast<float>(CELL_SIZE)));
-    sel.setPosition(static_cast<float>(c * CELL_SIZE + offsetX), static_cast<float>(r * CELL_SIZE + offsetY));
+    if (r < 0 || r >= N || c < 0 || c >= N) return;
+    RectangleShape sel(Vector2f(CELL, CELL));
+    sel.setPosition(c * CELL + offsetX, r * CELL + offsetY);
     sel.setFillColor(Color(0, 0, 0, 0));
     sel.setOutlineThickness(3);
     sel.setOutlineColor(Color(255, 215, 0));
     window.draw(sel);
 }
 
-int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE], int lens[BOARD_SIZE][BOARD_SIZE]) {
-    for (int r = 0; r < BOARD_SIZE; ++r)
-        for (int c = 0; c < BOARD_SIZE; ++c)
-            marks[r][c] = false, lens[r][c] = 0;
+bool Board::isAdjacent(int r1, int c1, int r2, int c2) {
+    int dr = r1 - r2; if (dr < 0) dr = -dr;
+    int dc = c1 - c2; if (dc < 0) dc = -dc;
+    return (dr + dc) == 1;
+}
+
+int Board::countRunRow(Gem matrix[8][8], int r, int c) {
+    if (matrix[r][c].isEmpty()) return 0;
+    string tipo = matrix[r][c].getTipoGem();
+
+    int left = c;
+    while (left - 1 >= 0 && !matrix[r][left - 1].isEmpty() &&
+        matrix[r][left - 1].getTipoGem() == tipo) {
+        --left;
+    }
+    int right = c;
+    while (right + 1 < 8 && !matrix[r][right + 1].isEmpty() &&
+        matrix[r][right + 1].getTipoGem() == tipo) {
+        ++right;
+    }
+    return right - left + 1;
+}
+
+int Board::countRunCol(Gem matrix[8][8], int r, int c) {
+    if (matrix[r][c].isEmpty()) return 0;
+    string tipo = matrix[r][c].getTipoGem();
+
+    int up = r;
+    while (up - 1 >= 0 && !matrix[up - 1][c].isEmpty() &&
+        matrix[up - 1][c].getTipoGem() == tipo) {
+        --up;
+    }
+    int down = r;
+    while (down + 1 < 8 && !matrix[down + 1][c].isEmpty() &&
+        matrix[down + 1][c].getTipoGem() == tipo) {
+        ++down;
+    }
+    return down - up + 1;
+}
+
+bool Board::wouldFormMatch(int r1, int c1, int r2, int c2) {
+    if (!isAdjacent(r1, c1, r2, c2)) return false;
+
+    Gem tmp = matrix[r1][c1];
+    matrix[r1][c1] = matrix[r2][c2];
+    matrix[r2][c2] = tmp;
+
+    bool forms = false;
+    int rs[2] = { r1, r2 };
+    int cs[2] = { c1, c2 };
+
+    for (int i = 0; i < 2 && !forms; ++i) {
+        int r = rs[i], c = cs[i];
+        if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            if (countRunRow(matrix, r, c) >= 3) forms = true;
+            if (countRunCol(matrix, r, c) >= 3) forms = true;
+        }
+    }
+
+    tmp = matrix[r1][c1];
+    matrix[r1][c1] = matrix[r2][c2];
+    matrix[r2][c2] = tmp;
+
+    return forms;
+}
+
+int Board::findMatches(bool marks[8][8]) {
+    for (int r = 0; r < N; ++r)
+        for (int c = 0; c < N; ++c)
+            marks[r][c] = false;
+
     int totalMarked = 0;
-    for (int r = 0; r < BOARD_SIZE; ++r) {
+
+    for (int r = 0; r < N; ++r) {
         int c = 0;
-        while (c < BOARD_SIZE) {
-            if (!matrix[r][c] || !matrix[r][c]->isLoaded()) { c++; continue; }
-            string tipo = matrix[r][c]->getType();
+        while (c < N) {
+            if (!matrix[r][c].isLoaded()) { c++; continue; }
+
+            string tipo = matrix[r][c].getTipoGem();
             int k = c + 1;
-            while (k < BOARD_SIZE && matrix[r][k] && matrix[r][k]->isLoaded() && matrix[r][k]->getType() == tipo) k++;
+            while (k < N && matrix[r][k].isLoaded() && matrix[r][k].getTipoGem() == tipo) {
+                k++;
+            }
             int len = k - c;
             if (len >= 3) {
-                for (int x = c; x < k; x++) marks[r][x] = true, lens[r][x] = len;
-                totalMarked += len;
+                for (int x = c; x < k; x++) {
+                    if (!marks[r][x]) { marks[r][x] = true; totalMarked++; }
+                }
             }
             c = (len > 1 ? k : c + 1);
         }
     }
-    for (int c = 0; c < BOARD_SIZE; ++c) {
+
+    for (int c = 0; c < N; ++c) {
         int r = 0;
-        while (r < BOARD_SIZE) {
-            if (!matrix[r][c] || !matrix[r][c]->isLoaded()) { r++; continue; }
-            string tipo = matrix[r][c]->getType();
+        while (r < N) {
+            if (!matrix[r][c].isLoaded()) { r++; continue; }
+
+            string tipo = matrix[r][c].getTipoGem();
             int k = r + 1;
-            while (k < BOARD_SIZE && matrix[k][c] && matrix[k][c]->isLoaded() && matrix[k][c]->getType() == tipo) k++;
+            while (k < N && matrix[k][c].isLoaded() && matrix[k][c].getTipoGem() == tipo) {
+                k++;
+            }
             int len = k - r;
             if (len >= 3) {
-                for (int x = r; x < k; x++) marks[x][c] = true, lens[x][c] = len;
-                totalMarked += len;
+                for (int x = r; x < k; x++) {
+                    if (!marks[x][c]) { marks[x][c] = true; totalMarked++; }
+                }
             }
             r = (len > 1 ? k : r + 1);
         }
@@ -128,73 +226,47 @@ int Board::findMatches(bool marks[BOARD_SIZE][BOARD_SIZE], int lens[BOARD_SIZE][
     return totalMarked;
 }
 
-void Board::createSpecialGem(int r, int c, const string& tipo) {
-    delete matrix[r][c];
-    if (rand() % 2 == 0)
-        matrix[r][c] = new BombGem("Bomb");
-    else
-        matrix[r][c] = new IceGem();
-    matrix[r][c]->setGrid(r, c, CELL_SIZE);
-}
-
-int Board::clearMarked(const bool marks[BOARD_SIZE][BOARD_SIZE]) {
+int Board::clearMarked(const bool marks[8][8]) {
     int cleared = 0;
-    for (int r = 0; r < BOARD_SIZE; ++r)
-        for (int c = 0; c < BOARD_SIZE; ++c)
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
             if (marks[r][c]) {
-                delete matrix[r][c];
-                matrix[r][c] = nullptr;
+                matrix[r][c] = Gem();
+                matrix[r][c].setGrid(r, c, CELL);
                 cleared++;
             }
+        }
+    }
     return cleared;
 }
 
 int Board::findAndClearMatches() {
-    bool marks[BOARD_SIZE][BOARD_SIZE];
-    int lens[BOARD_SIZE][BOARD_SIZE];
-    int marked = findMatches(marks, lens);
+    bool marks[N][N];
+    int marked = findMatches(marks);
     if (marked == 0) return 0;
-    for (int r = 0; r < BOARD_SIZE; r++) {
-        for (int c = 0; c < BOARD_SIZE; c++) {
-            if (marks[r][c] && lens[r][c] >= 4) {
-                createSpecialGem(r, c, matrix[r][c] ? matrix[r][c]->getType() : "");
-            }
-        }
-    }
-    for (int r = 0; r < BOARD_SIZE; r++) {
-        for (int c = 0; c < BOARD_SIZE; c++) {
-            if (marks[r][c] && matrix[r][c] && matrix[r][c]->isSpecial()) {
-                matrix[r][c]->onMatch(*this);
-            }
-        }
-    }
     return clearMarked(marks);
 }
 
-
 void Board::applyGravityAndRefill() {
-    for (int c = 0; c < BOARD_SIZE; ++c) {
-        int write = BOARD_SIZE - 1;
-        for (int r = BOARD_SIZE - 1; r >= 0; --r) {
-            if (matrix[r][c] && !matrix[r][c]->isEmpty()) {
+    for (int c = 0; c < N; ++c) {
+        int write = N - 1;
+        for (int r = N - 1; r >= 0; --r) {
+            if (!matrix[r][c].isEmpty()) {
                 if (r != write) {
                     matrix[write][c] = matrix[r][c];
-                    matrix[write][c]->setGrid(write, c, CELL_SIZE);
-                    matrix[r][c] = nullptr;
+                    matrix[write][c].setGrid(write, c, CELL);
                 }
                 write--;
             }
         }
         while (write >= 0) {
             int idx = rand() % 5;
-            matrix[write][c] = new NormalGem(tipos[idx]);
-            matrix[write][c]->setGrid(write, c, CELL_SIZE);
+            Gem g;
+            string t = tipos[idx];
+            g.setTipoGem(t);
+            g.setGrid(write, c, CELL);
+            matrix[write][c] = g;
             write--;
         }
     }
-}
-void Board::removeGem(int r, int c) {
-    if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
-    delete matrix[r][c];
-    matrix[r][c] = nullptr;
 }
