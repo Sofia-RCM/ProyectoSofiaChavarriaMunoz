@@ -2,34 +2,40 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "Board.h"
-#include "HUD.h"
-#include "ResourceManager.h"
-#include "Constants.h"
 using namespace sf;
-using namespace std;
+extern map<string, Texture> TEXTURES;
 
 class Game {
 private:
     int punctuation;
     int counter;
     Board board;
-    HUD* hud;
+
     bool gameOver = false;
+    bool hudOk = false;
     int state = 0;
 
-    Texture bgTexture;
-    Sprite bgSprite;
-    Texture bgFinalTexture;
-    Sprite bgFinalSprite;
+    Font font;
+    Text scoreText;
+    Text movesText;
+    Text overText;
 
     RectangleShape playButton;
     Text playText;
+    Texture bgTexture;
+    Sprite bgSprite;
+
     RectangleShape restartButton;
     Text restartText;
     RectangleShape exitButton;
     Text exitText;
+    Texture bgFinalTexture;
+    Sprite bgFinalSprite;
+
+    void updateHUD();
 
 public:
     Game();
     void run();
+    bool loadTexture(const string& name, const string& path);
 };

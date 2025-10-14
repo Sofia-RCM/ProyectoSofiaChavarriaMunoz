@@ -134,24 +134,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="BombGemcpp.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gem.cpp" />
-    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="ProyectoSofiaChavarria.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="BombGem.h" />
-    <ClInclude Include="Constants.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Gem.h" />
-    <ClInclude Include="HUB.h" />
-    <ClInclude Include="HUD.h" />
-    <ClInclude Include="IceGem.h" />
-    <ClInclude Include="NormalGem.h" />
-    <ClInclude Include="ResourceManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
