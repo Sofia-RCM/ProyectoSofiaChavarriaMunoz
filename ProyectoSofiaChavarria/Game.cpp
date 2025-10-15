@@ -23,7 +23,7 @@ void Game::run() {
     int size = board.windowSize();
     int hudHeight = 50;
 
-    RenderWindow window(VideoMode(880, 930), "Match Studio Ghibli ");
+    RenderWindow window(VideoMode(880, 930), "Match Studio Ghibli");
     window.setFramerateLimit(60);
 
     if (font.loadFromFile("arial.ttf") ||
@@ -44,12 +44,12 @@ void Game::run() {
         overText.setString("¡Juego terminado!");
         FloatRect b = overText.getLocalBounds();
         overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
-        overText.setPosition(440, 300);
+        overText.setPosition(440.f, 300.f);
 
-        playButton.setSize(Vector2f(200, 80));
+        playButton.setSize(Vector2f(200.f, 80.f));
         playButton.setFillColor(Color(0, 100, 0));
-        playButton.setOrigin(100, 40);
-        playButton.setPosition(440, 500);
+        playButton.setOrigin(100.f, 40.f);
+        playButton.setPosition(440.f, 500.f);
 
         playText.setFont(font);
         playText.setString("Jugar");
@@ -59,10 +59,10 @@ void Game::run() {
         playText.setOrigin(tb.width * 0.5f, tb.height * 0.5f);
         playText.setPosition(playButton.getPosition());
 
-        restartButton.setSize(Vector2f(200, 80));
+        restartButton.setSize(Vector2f(200.f, 80.f));
         restartButton.setFillColor(Color(0, 100, 0));
-        restartButton.setOrigin(100, 40);
-        restartButton.setPosition(440, 500);
+        restartButton.setOrigin(100.f, 40.f);
+        restartButton.setPosition(440.f, 500.f);
 
         restartText.setFont(font);
         restartText.setString("Reiniciar");
@@ -72,10 +72,10 @@ void Game::run() {
         restartText.setOrigin(rt.width * 0.5f, rt.height * 0.5f);
         restartText.setPosition(restartButton.getPosition());
 
-        exitButton.setSize(Vector2f(200, 80));
+        exitButton.setSize(Vector2f(200.f, 80.f));
         exitButton.setFillColor(Color(0, 100, 0));
-        exitButton.setOrigin(100, 40);
-        exitButton.setPosition(440, 600);
+        exitButton.setOrigin(100.f, 40.f);
+        exitButton.setPosition(440.f, 600.f);
 
         exitText.setFont(font);
         exitText.setString("Salir");
@@ -88,19 +88,23 @@ void Game::run() {
 
     bgTexture.loadFromFile("assets/FondoM.png");
     bgSprite.setTexture(bgTexture);
-    FloatRect bgBounds = bgSprite.getLocalBounds();
-    bgSprite.setScale(
-        (float)window.getSize().x / bgBounds.width,
-        (float)window.getSize().y / bgBounds.height
-    );
+    {
+        FloatRect bgBounds = bgSprite.getLocalBounds();
+        bgSprite.setScale(
+            (float)window.getSize().x / bgBounds.width,
+            (float)window.getSize().y / bgBounds.height
+        );
+    }
 
     bgFinalTexture.loadFromFile("assets/Fondo2.png");
     bgFinalSprite.setTexture(bgFinalTexture);
-    FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
-    bgFinalSprite.setScale(
-        (float)window.getSize().x / bgBounds2.width,
-        (float)window.getSize().y / bgBounds2.height
-    );
+    {
+        FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
+        bgFinalSprite.setScale(
+            (float)window.getSize().x / bgBounds2.width,
+            (float)window.getSize().y / bgBounds2.height
+        );
+    }
 
     board.setOffset(0, hudHeight);
 
@@ -114,14 +118,14 @@ void Game::run() {
             if (state == 0) {
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
-                    float mx = event.mouseButton.x;
-                    float my = event.mouseButton.y;
+                    float mx = (float)event.mouseButton.x;
+                    float my = (float)event.mouseButton.y;
 
                     if (playButton.getGlobalBounds().contains(mx, my)) {
                         state = 1;
                         punctuation = 0;
                         counter = 20;
-                        gameOver = false; 8;
+                        gameOver = false;
                         board.fillBoard();
 
                         int cleared = board.findAndClearMatches();
@@ -162,9 +166,7 @@ void Game::run() {
                                         punctuation += cleared * 10 * chain;
                                     }
                                 } while (cleared > 0);
-                                if (!board.hasPossibleMoves()) {
-                                    board.shuffleBoard();
-                                }
+
                                 --counter;
                                 if (counter <= 0) {
                                     counter = 0;
@@ -184,8 +186,8 @@ void Game::run() {
             else if (state == 2) {
                 if (event.type == Event::MouseButtonPressed &&
                     event.mouseButton.button == Mouse::Left) {
-                    float mx = event.mouseButton.x;
-                    float my = event.mouseButton.y;
+                    float mx = (float)event.mouseButton.x;
+                    float my = (float)event.mouseButton.y;
 
                     if (restartButton.getGlobalBounds().contains(mx, my)) {
                         punctuation = 0;
@@ -216,13 +218,13 @@ void Game::run() {
             }
 
             if (hudOk) {
-                RectangleShape hudBg(Vector2f(window.getSize().x, hudHeight));
+                RectangleShape hudBg(Vector2f((float)window.getSize().x, (float)hudHeight));
                 hudBg.setFillColor(Color(0, 100, 0, 220));
-                hudBg.setPosition(0, 0);
+                hudBg.setPosition(0.f, 0.f);
                 window.draw(hudBg);
 
-                scoreText.setPosition(20, 15);
-                movesText.setPosition(window.getSize().x - 200, 15);
+                scoreText.setPosition(20.f, 15.f);
+                movesText.setPosition((float)window.getSize().x - 200.f, 15.f);
 
                 window.draw(scoreText);
                 window.draw(movesText);
@@ -234,7 +236,7 @@ void Game::run() {
 
             FloatRect b = overText.getLocalBounds();
             overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
-            overText.setPosition(440, 300);
+            overText.setPosition(440.f, 300.f);
 
             window.draw(bgFinalSprite);
             window.draw(overText);
@@ -253,6 +255,6 @@ bool Game::loadTexture(const std::string& name, const string& path) {
     if (!tex.loadFromFile(path)) {
         return false;
     }
-    TEXTURES[name] = move(tex);
+    TEXTURES[name] = std::move(tex);
     return true;
 }

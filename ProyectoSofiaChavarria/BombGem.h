@@ -4,6 +4,5 @@
 class BombGem : public Gem {
 public:
     BombGem();
-    void onMatch() override;
-    string getType() const override { return "Bomb"; }
+    ~BombGem() override = default;
 };

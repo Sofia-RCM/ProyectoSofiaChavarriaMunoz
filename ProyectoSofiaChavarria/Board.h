@@ -1,10 +1,7 @@
 #pragma once
 #include <string>
-#include <SFML/Graphics.hpp>
 #include "Gem.h"
-#include "NormalGem.h"
-#include "BombGem.h"
-#include "IceGem.h"
+#include <SFML/Graphics.hpp>
 using namespace std;
 using namespace sf;
 
@@ -12,16 +9,15 @@ class Board {
 private:
     static const int N = 8;
     static const int CELL = 110;
-    Gem* matrix[N][N];
+    Gem matrix[N][N];
     string tipos[5];
     int offsetX = 0;
     int offsetY = 0;
 
 public:
     Board();
-    ~Board();
 
-    void setGem(int fila, int col, Gem* g);
+    void setGem(int fila, int col, Gem g);
     void fillBoard();
     void drawBoard(RenderWindow& window);
     int windowSize();
@@ -35,7 +31,4 @@ public:
     void applyGravityAndRefill();
 
     void setOffset(int x, int y) { offsetX = x; offsetY = y; }
-    bool hasPossibleMoves();
-    void shuffleBoard();
-
 };

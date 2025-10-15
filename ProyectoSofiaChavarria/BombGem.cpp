@@ -1,8 +1,5 @@
 #include "BombGem.h"
-#include <iostream>
-using namespace std;
 
-BombGem::BombGem() : Gem() {}
-
-void BombGem::onMatch() {
+BombGem::BombGem() : Gem() {
+    setTipoGem("Bomb");
 }
