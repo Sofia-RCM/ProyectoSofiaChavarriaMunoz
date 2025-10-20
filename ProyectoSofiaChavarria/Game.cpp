@@ -1,260 +1,228 @@
 ﻿#include "Game.h"
 #include <iostream>
-using namespace std;
 using namespace sf;
 
-map<string, Texture> TEXTURES;
+Game::Game() {}
 
-Game::Game() : punctuation(0), counter(20) {}
+Game::~Game() {}
 
 void Game::updateHUD() {
     if (!hudOk) return;
-    scoreText.setString("Puntos: " + to_string(punctuation));
-    movesText.setString("Movimientos: " + to_string(counter));
+    scoreText.setString("Puntos: " + std::to_string(punctuation));
+    movesText.setString("Movimientos: " + std::to_string(counter));
+}
+
+void Game::coverSpriteToWindow(Sprite& spr, const Vector2u& win) {
+    FloatRect b = spr.getLocalBounds();
+    float s = std::max((float)win.x / b.width, (float)win.y / b.height);
+    spr.setScale(s, s);
+    spr.setPosition((win.x - b.width * s) * 0.5f, (win.y - b.height * s) * 0.5f);
 }
 
 void Game::run() {
-    loadTexture("Totoro", "assets/gemaTotoro.png");
-    loadTexture("Ponyo", "assets/gemaPonyo.png");
-    loadTexture("Parti", "assets/gemaParti.png");
-    loadTexture("Gato", "assets/gemaGato.png");
-    loadTexture("Galleta", "assets/gemaGalleta.png");
-
-    int size = board.windowSize();
-    int hudHeight = 50;
-
+    const int HUD_H = 50;
     RenderWindow window(VideoMode(880, 930), "Match Studio Ghibli");
     window.setFramerateLimit(60);
 
-    if (font.loadFromFile("arial.ttf") ||
-        font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
+    board.centerInWindow(window.getSize().x, window.getSize().y, HUD_H);
+
+    if (font.loadFromFile("arial.ttf") || font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
         hudOk = true;
+        scoreText.setFont(font); scoreText.setCharacterSize(22); scoreText.setFillColor(Color::White);
+        movesText.setFont(font); movesText.setCharacterSize(22); movesText.setFillColor(Color::White);
+        overText.setFont(font);  overText.setCharacterSize(40);  overText.setFillColor(Color(0, 100, 0));
 
-        scoreText.setFont(font);
-        scoreText.setCharacterSize(20);
-        scoreText.setFillColor(Color::White);
+        playButton.setSize({ 220.f, 90.f }); playButton.setFillColor(Color(0, 100, 0));
+        restartButton.setSize({ 220.f, 90.f }); restartButton.setFillColor(Color(0, 100, 0));
+        exitButton.setSize({ 220.f, 90.f }); exitButton.setFillColor(Color(0, 100, 0));
 
-        movesText.setFont(font);
-        movesText.setCharacterSize(20);
-        movesText.setFillColor(Color::White);
-
-        overText.setFont(font);
-        overText.setCharacterSize(40);
-        overText.setFillColor(Color(0, 100, 0));
-        overText.setString("¡Juego terminado!");
-        FloatRect b = overText.getLocalBounds();
-        overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
-        overText.setPosition(440.f, 300.f);
-
-        playButton.setSize(Vector2f(200.f, 80.f));
-        playButton.setFillColor(Color(0, 100, 0));
-        playButton.setOrigin(100.f, 40.f);
-        playButton.setPosition(440.f, 500.f);
-
-        playText.setFont(font);
-        playText.setString("Jugar");
-        playText.setCharacterSize(30);
-        playText.setFillColor(Color::White);
-        FloatRect tb = playText.getLocalBounds();
-        playText.setOrigin(tb.width * 0.5f, tb.height * 0.5f);
-        playText.setPosition(playButton.getPosition());
-
-        restartButton.setSize(Vector2f(200.f, 80.f));
-        restartButton.setFillColor(Color(0, 100, 0));
-        restartButton.setOrigin(100.f, 40.f);
-        restartButton.setPosition(440.f, 500.f);
-
-        restartText.setFont(font);
-        restartText.setString("Reiniciar");
-        restartText.setCharacterSize(28);
-        restartText.setFillColor(Color::White);
-        FloatRect rt = restartText.getLocalBounds();
-        restartText.setOrigin(rt.width * 0.5f, rt.height * 0.5f);
-        restartText.setPosition(restartButton.getPosition());
-
-        exitButton.setSize(Vector2f(200.f, 80.f));
-        exitButton.setFillColor(Color(0, 100, 0));
-        exitButton.setOrigin(100.f, 40.f);
-        exitButton.setPosition(440.f, 600.f);
-
-        exitText.setFont(font);
-        exitText.setString("Salir");
-        exitText.setCharacterSize(28);
-        exitText.setFillColor(Color::White);
-        FloatRect et = exitText.getLocalBounds();
-        exitText.setOrigin(et.width * 0.5f, et.height * 0.5f);
-        exitText.setPosition(exitButton.getPosition());
+        playText.setFont(font); playText.setCharacterSize(32); playText.setFillColor(Color::White); playText.setString("Jugar");
+        restartText.setFont(font); restartText.setCharacterSize(28); restartText.setFillColor(Color::White); restartText.setString("Reiniciar");
+        exitText.setFont(font); exitText.setCharacterSize(28); exitText.setFillColor(Color::White); exitText.setString("Salir");
     }
 
     bgTexture.loadFromFile("assets/FondoM.png");
     bgSprite.setTexture(bgTexture);
-    {
-        FloatRect bgBounds = bgSprite.getLocalBounds();
-        bgSprite.setScale(
-            (float)window.getSize().x / bgBounds.width,
-            (float)window.getSize().y / bgBounds.height
-        );
-    }
+    coverSpriteToWindow(bgSprite, window.getSize());
 
     bgFinalTexture.loadFromFile("assets/Fondo2.png");
     bgFinalSprite.setTexture(bgFinalTexture);
-    {
-        FloatRect bgBounds2 = bgFinalSprite.getLocalBounds();
-        bgFinalSprite.setScale(
-            (float)window.getSize().x / bgBounds2.width,
-            (float)window.getSize().y / bgBounds2.height
-        );
-    }
+    coverSpriteToWindow(bgFinalSprite, window.getSize());
 
-    board.setOffset(0, hudHeight);
+    auto centerText = [](Text& t, const Vector2f& p) {
+        FloatRect b = t.getLocalBounds();
+        t.setOrigin(b.left + b.width * 0.5f, b.top + b.height * 0.5f);
+        t.setPosition(p);
+        };
+    auto centerRect = [](RectangleShape& r, const Vector2f& p) {
+        r.setOrigin(r.getSize() * 0.5f);
+        r.setPosition(p);
+        };
 
-    int selR = -1, selC = -1;
+    centerRect(playButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.75f });
+    centerText(playText, playButton.getPosition());
+
+    centerRect(restartButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.58f });
+    centerText(restartText, restartButton.getPosition());
+
+    centerRect(exitButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.70f });
+    centerText(exitText, exitButton.getPosition());
+
+    updateHUD();
+    Clock clock;
 
     while (window.isOpen()) {
-        Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == Event::Closed) window.close();
+        float dt = clock.restart().asSeconds();
+        Event ev;
+        while (window.pollEvent(ev)) {
+            if (ev.type == Event::Closed) window.close();
 
+            // Menú
             if (state == 0) {
-                if (event.type == Event::MouseButtonPressed &&
-                    event.mouseButton.button == Mouse::Left) {
-                    float mx = (float)event.mouseButton.x;
-                    float my = (float)event.mouseButton.y;
-
-                    if (playButton.getGlobalBounds().contains(mx, my)) {
+                if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
+                    if (playButton.getGlobalBounds().contains((float)ev.mouseButton.x, (float)ev.mouseButton.y)) {
                         state = 1;
                         punctuation = 0;
                         counter = 20;
                         gameOver = false;
-                        board.fillBoard();
+                        gameState = GameState::Playing;
 
+                        // Limpieza inicial
                         int cleared = board.findAndClearMatches();
-                        while (cleared > 0) {
-                            int chain = 1;
-                            punctuation += cleared * 10 * chain;
+                        int safety = 0;
+                        while (cleared > 0 && safety++ < 8) {
+                            punctuation += cleared * 10;
                             board.applyGravityAndRefill();
                             cleared = board.findAndClearMatches();
                         }
-
                         updateHUD();
                     }
                 }
             }
+
+            // Juego
             else if (state == 1 && !gameOver) {
-                if (event.type == Event::MouseButtonPressed &&
-                    event.mouseButton.button == Mouse::Left) {
-                    int mx = event.mouseButton.x;
-                    int my = event.mouseButton.y;
-
-                    int r, c;
-                    if (board.screenToCell(mx, my, r, c)) {
-                        if (selR == -1) {
-                            selR = r; selC = c;
-                        }
-                        else {
-                            board.swapCells(selR, selC, r, c);
-                            int cleared = board.findAndClearMatches();
-                            if (cleared > 0) {
-                                int chain = 1;
-                                punctuation += cleared * 10 * chain;
-
-                                do {
-                                    board.applyGravityAndRefill();
-                                    cleared = board.findAndClearMatches();
-                                    if (cleared > 0) {
-                                        ++chain;
-                                        punctuation += cleared * 10 * chain;
-                                    }
-                                } while (cleared > 0);
-
-                                --counter;
-                                if (counter <= 0) {
-                                    counter = 0;
-                                    gameOver = true;
-                                    state = 2;
-                                }
-                                updateHUD();
+                if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
+                    if (gameState == GameState::Playing) {
+                        int r, c;
+                        if (board.screenToCell(ev.mouseButton.x, ev.mouseButton.y, r, c)) {
+                            if (selR == -1) {
+                                selR = r; selC = c;
                             }
                             else {
+                                // Guardar para posible reversión
+                                swapR = r; swapC = c;
                                 board.swapCells(selR, selC, r, c);
+                                gameState = GameState::Swapping;
+                                stateTimer = 0.05f; // Simulación de animación de swap
+                                selR = selC = -1;
                             }
-                            selR = selC = -1;
                         }
                     }
                 }
             }
-            else if (state == 2) {
-                if (event.type == Event::MouseButtonPressed &&
-                    event.mouseButton.button == Mouse::Left) {
-                    float mx = (float)event.mouseButton.x;
-                    float my = (float)event.mouseButton.y;
 
-                    if (restartButton.getGlobalBounds().contains(mx, my)) {
-                        punctuation = 0;
-                        counter = 20;
-                        gameOver = false;
-                        updateHUD();
+            // Final
+            else if (state == 2) {
+                if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
+                    Vector2f m{ (float)ev.mouseButton.x, (float)ev.mouseButton.y };
+                    if (restartButton.getGlobalBounds().contains(m)) {
                         state = 0;
+                        punctuation = 0; counter = 20; gameOver = false;
+                        updateHUD();
                     }
-                    else if (exitButton.getGlobalBounds().contains(mx, my)) {
+                    else if (exitButton.getGlobalBounds().contains(m)) {
                         window.close();
                     }
                 }
             }
         }
 
+        // --- Lógica por estados (evita bloqueos) ---
+        if (state == 1 && !gameOver) {
+            if (gameState == GameState::Swapping) {
+                stateTimer -= dt;
+                if (stateTimer <= 0) {
+                    int cleared = board.findAndClearMatches();
+                    if (cleared > 0) {
+                        punctuation += cleared * 10;
+                        gameState = GameState::Clearing;
+                        stateTimer = CLEAR_DELAY;
+                    }
+                    else {
+                        // Revertir movimiento inválido
+                        board.swapCells(selR, selC, swapR, swapC);
+                        gameState = GameState::Playing;
+                    }
+                    updateHUD();
+                }
+            }
+            else if (gameState == GameState::Clearing) {
+                stateTimer -= dt;
+                if (stateTimer <= 0) {
+                    board.applyGravityAndRefill();
+                    gameState = GameState::Falling;
+                    stateTimer = FALL_DELAY;
+                }
+            }
+            else if (gameState == GameState::Falling) {
+                stateTimer -= dt;
+                if (stateTimer <= 0) {
+                    int cleared = board.findAndClearMatches();
+                    if (cleared > 0) {
+                        punctuation += cleared * 10;
+                        gameState = GameState::Clearing;
+                        stateTimer = CLEAR_DELAY;
+                    }
+                    else {
+                        --counter;
+                        if (counter <= 0) {
+                            counter = 0;
+                            gameOver = true;
+                            state = 2;
+                        }
+                        gameState = GameState::Playing;
+                    }
+                    updateHUD();
+                }
+            }
+        }
+
+        board.updateExplosions(dt);
+
+        // --- Render ---
         window.clear();
 
         if (state == 0) {
             window.draw(bgSprite);
-            window.draw(playButton);
-            window.draw(playText);
+            window.draw(playButton); window.draw(playText);
         }
         else if (state == 1) {
+            sf::RectangleShape hudBg({ (float)window.getSize().x, (float)HUD_H });
+            hudBg.setFillColor(sf::Color(0, 100, 0, 230));
+            window.draw(hudBg);
+
+            scoreText.setPosition(20, 14);
+            movesText.setPosition((float)window.getSize().x - 240.f, 14.f);
+            window.draw(scoreText); window.draw(movesText);
+
             board.drawBoard(window);
-
-            if (!gameOver && selR != -1) {
+            if (gameState == GameState::Playing && selR != -1) {
                 board.drawSelection(window, selR, selC);
-            }
-
-            if (hudOk) {
-                RectangleShape hudBg(Vector2f((float)window.getSize().x, (float)hudHeight));
-                hudBg.setFillColor(Color(0, 100, 0, 220));
-                hudBg.setPosition(0.f, 0.f);
-                window.draw(hudBg);
-
-                scoreText.setPosition(20.f, 15.f);
-                movesText.setPosition((float)window.getSize().x - 200.f, 15.f);
-
-                window.draw(scoreText);
-                window.draw(movesText);
             }
         }
         else if (state == 2) {
-            string finalMsg = "Puntos: " + to_string(punctuation);
-            overText.setString(finalMsg);
-
-            FloatRect b = overText.getLocalBounds();
-            overText.setOrigin(b.width * 0.5f, b.height * 0.5f);
-            overText.setPosition(440.f, 300.f);
-
             window.draw(bgFinalSprite);
+            overText.setString("Puntos: " + std::to_string(punctuation));
+            FloatRect b = overText.getLocalBounds();
+            overText.setOrigin(b.left + b.width * 0.5f, b.top + b.height * 0.5f);
+            overText.setPosition((float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.40f);
             window.draw(overText);
-            window.draw(restartButton);
-            window.draw(restartText);
-            window.draw(exitButton);
-            window.draw(exitText);
+
+            window.draw(restartButton); window.draw(restartText);
+            window.draw(exitButton); window.draw(exitText);
         }
+
         window.display();
     }
-}
-
-bool Game::loadTexture(const std::string& name, const string& path) {
-    if (TEXTURES.find(name) != TEXTURES.end()) return true;
-    Texture tex;
-    if (!tex.loadFromFile(path)) {
-        return false;
-    }
-    TEXTURES[name] = std::move(tex);
-    return true;
 }

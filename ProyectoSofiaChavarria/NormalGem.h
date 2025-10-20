@@ -4,5 +4,5 @@
 class NormalGem : public Gem {
 public:
     NormalGem();
-    ~NormalGem() override = default;
+    void setTipoGem(const std::string& tipo) override;
 };

@@ -1,35 +1,29 @@
 #pragma once
-#include <string>
 #include <SFML/Graphics.hpp>
-using namespace std;
-using namespace sf;
+#include <string>
+
+class Board; // Declaración adelantada
 
 class Gem {
-private:
-    string tipoGem;
-    int row = 0;
-    int col = 0;
-    int cellSize = 64;
-
-    Sprite  sprite;
-    bool loaded = false;
-
-    RectangleShape cross1;
-    RectangleShape cross2;
-
-    void applyScaleAndPosition();
+protected:
+    std::string tipoGem;
+    sf::Sprite sprite;
+    sf::Texture texture;
+    bool empty = false;
 
 public:
     Gem();
-    virtual ~Gem();  // ?? AÑADE ESTO ?? Destructor virtual
+    virtual ~Gem();
 
-    void setTipoGem(const string& tipo);
-    string getTipoGem();
+    virtual void draw(sf::RenderWindow& window);
+    virtual void setTipoGem(const std::string& tipo);
+    virtual std::string getTipoGem() const { return tipoGem; }
 
-    bool   isLoaded();
+    virtual void setGrid(int fila, int columna, int cellSize, float offsetX, float offsetY);
+    virtual bool isEmpty() const { return empty; }
 
-    void setGrid(int r, int c, int cell);
-    void setPosition(float cx, float cy);
-    void draw(sf::RenderWindow& window);
-    bool isEmpty();
+    // Polimorfismo: comportamiento al hacer match
+    virtual void onMatch(Board& board, int row, int col) {}
+
+    sf::Sprite& getSprite() { return sprite; }
 };
