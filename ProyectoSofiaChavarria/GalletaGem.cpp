@@ -1,6 +1,6 @@
 #include "GalletaGem.h"
 #include "Board.h"
-// Definición del constructor
+
 GalletaGem::GalletaGem() {}
 
 void GalletaGem::setTipoGem(const std::string& tipo) {
@@ -8,6 +8,9 @@ void GalletaGem::setTipoGem(const std::string& tipo) {
 }
 
 void GalletaGem::onMatch(Board& board, int row, int col) {
-    for (int c = 0; c < 8; ++c)
-        board.markForClear(row, c);
+    if (isSpecial && !isActivated) {
+        isActivated = true;
+        for (int c = 0; c < 8; ++c)
+            board.markForClear(row, c);
+    }
 }

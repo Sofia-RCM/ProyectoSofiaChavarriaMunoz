@@ -71,13 +71,14 @@ void Game::run() {
     updateHUD();
     Clock clock;
 
+    int selR = -1, selC = -1;
+
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
         Event ev;
         while (window.pollEvent(ev)) {
             if (ev.type == Event::Closed) window.close();
 
-            // Menú
             if (state == 0) {
                 if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
                     if (playButton.getGlobalBounds().contains((float)ev.mouseButton.x, (float)ev.mouseButton.y)) {
@@ -87,7 +88,6 @@ void Game::run() {
                         gameOver = false;
                         gameState = GameState::Playing;
 
-                        // Limpieza inicial
                         int cleared = board.findAndClearMatches();
                         int safety = 0;
                         while (cleared > 0 && safety++ < 8) {
@@ -99,30 +99,51 @@ void Game::run() {
                     }
                 }
             }
-
-            // Juego
-            else if (state == 1 && !gameOver) {
+            else if (state == 1 && !gameOver && gameState == GameState::Playing) {
                 if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
-                    if (gameState == GameState::Playing) {
-                        int r, c;
-                        if (board.screenToCell(ev.mouseButton.x, ev.mouseButton.y, r, c)) {
-                            if (selR == -1) {
-                                selR = r; selC = c;
+                    int r, c;
+                    if (board.screenToCell(ev.mouseButton.x, ev.mouseButton.y, r, c)) {
+                        if (selR == -1) {
+                            Gem* g = board.getGem(r, c);
+                            if (g) {
+                                selR = r;
+                                selC = c;
                             }
-                            else {
-                                // Guardar para posible reversión
-                                swapR = r; swapC = c;
+                        }
+                        else {
+                            Gem* g1 = board.getGem(selR, selC);
+                            Gem* g2 = board.getGem(r, c);
+
+                            bool special1 = g1 && g1->getIsSpecial() && !g1->getIsActivated();
+                            bool special2 = g2 && g2->getIsSpecial() && !g2->getIsActivated();
+
+                            if (special1 || special2) {
+                                board.swapCells(selR, selC, r, c);
+
+                                if (special1) {
+                                    g1->onMatch(board, r, c);
+                                    punctuation += 50;
+                                }
+                                if (special2) {
+                                    g2->onMatch(board, selR, selC);
+                                    punctuation += 50;
+                                }
+
+                                board.clearMarked();
+                                board.applyGravityAndRefill();
+                                updateHUD();
+                            }
+                            else if (board.isSwapValid(selR, selC, r, c)) {
                                 board.swapCells(selR, selC, r, c);
                                 gameState = GameState::Swapping;
-                                stateTimer = 0.05f; // Simulación de animación de swap
-                                selR = selC = -1;
+                                stateTimer = 0.05f;
                             }
+
+                            selR = selC = -1;
                         }
                     }
                 }
             }
-
-            // Final
             else if (state == 2) {
                 if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
                     Vector2f m{ (float)ev.mouseButton.x, (float)ev.mouseButton.y };
@@ -138,7 +159,6 @@ void Game::run() {
             }
         }
 
-        // --- Lógica por estados (evita bloqueos) ---
         if (state == 1 && !gameOver) {
             if (gameState == GameState::Swapping) {
                 stateTimer -= dt;
@@ -147,11 +167,9 @@ void Game::run() {
                     if (cleared > 0) {
                         punctuation += cleared * 10;
                         gameState = GameState::Clearing;
-                        stateTimer = CLEAR_DELAY;
+                        stateTimer = 0.3f;
                     }
                     else {
-                        // Revertir movimiento inválido
-                        board.swapCells(selR, selC, swapR, swapC);
                         gameState = GameState::Playing;
                     }
                     updateHUD();
@@ -162,7 +180,7 @@ void Game::run() {
                 if (stateTimer <= 0) {
                     board.applyGravityAndRefill();
                     gameState = GameState::Falling;
-                    stateTimer = FALL_DELAY;
+                    stateTimer = 0.2f;
                 }
             }
             else if (gameState == GameState::Falling) {
@@ -172,7 +190,7 @@ void Game::run() {
                     if (cleared > 0) {
                         punctuation += cleared * 10;
                         gameState = GameState::Clearing;
-                        stateTimer = CLEAR_DELAY;
+                        stateTimer = 0.3f;
                     }
                     else {
                         --counter;
@@ -190,7 +208,6 @@ void Game::run() {
 
         board.updateExplosions(dt);
 
-        // --- Render ---
         window.clear();
 
         if (state == 0) {

@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-class Board; // Declaración adelantada
+class Board;
 
 class Gem {
 protected:
@@ -10,6 +10,8 @@ protected:
     sf::Sprite sprite;
     sf::Texture texture;
     bool empty = false;
+    bool isSpecial = false;
+    bool isActivated = false;
 
 public:
     Gem();
@@ -22,8 +24,12 @@ public:
     virtual void setGrid(int fila, int columna, int cellSize, float offsetX, float offsetY);
     virtual bool isEmpty() const { return empty; }
 
-    // Polimorfismo: comportamiento al hacer match
     virtual void onMatch(Board& board, int row, int col) {}
+
+    bool getIsSpecial() const { return isSpecial; }
+    void setIsSpecial(bool special) { isSpecial = special; }
+    bool getIsActivated() const { return isActivated; }
+    void setIsActivated(bool activated) { isActivated = activated; }
 
     sf::Sprite& getSprite() { return sprite; }
 };

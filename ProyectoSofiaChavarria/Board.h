@@ -33,6 +33,7 @@ public:
     int findAndClearMatches();
     int applyGravityAndRefill();
     int swapCells(int r1, int c1, int r2, int c2);
+    bool isSwapValid(int r1, int c1, int r2, int c2);
 
     void drawBoard(sf::RenderWindow& window);
     void drawSelection(sf::RenderWindow& window, int fila, int columna);

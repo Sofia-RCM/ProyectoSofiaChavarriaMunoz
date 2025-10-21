@@ -3,7 +3,7 @@
 
 class GalletaGem : public Gem {
 public:
-    GalletaGem(); // Declaración del constructor
+    GalletaGem();
     void setTipoGem(const std::string& tipo) override;
-    virtual void onMatch(Board& board, int row, int col) override;
+    void onMatch(Board& board, int row, int col) override;
 };

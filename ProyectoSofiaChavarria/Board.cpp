@@ -4,8 +4,11 @@
 #include "PartiGem.h"
 #include "GatoGem.h"
 #include "GalletaGem.h"
+#include "IceGem.h"
+#include "NormalGem.h"
 #include <ctime>
 #include <iostream>
+#include <typeinfo>
 
 Board::Board() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -50,20 +53,23 @@ void Board::clearCell(int i, int j) {
 }
 
 void Board::fillBoard() {
-    const std::string tipos[5] = { "Totoro","Ponyo","Parti","Gato","Galleta" };
+    const std::string tipos[6] = { "Totoro","Ponyo","Parti","Gato","Galleta","Ice" };
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             std::string tipo;
             bool ok;
             do {
                 ok = true;
-                tipo = tipos[std::rand() % 5];
-                if (c >= 2 && matrix[r][c - 1] && matrix[r][c - 2] &&
-                    matrix[r][c - 1]->getTipoGem() == tipo &&
-                    matrix[r][c - 2]->getTipoGem() == tipo) ok = false;
-                if (r >= 2 && matrix[r - 1][c] && matrix[r - 2][c] &&
-                    matrix[r - 1][c]->getTipoGem() == tipo &&
-                    matrix[r - 2][c]->getTipoGem() == tipo) ok = false;
+                tipo = tipos[std::rand() % 6];
+                // Evitar 3 en fila/col al inicio (excepto Ice)
+                if (tipo != "Ice") {
+                    if (c >= 2 && matrix[r][c - 1] && matrix[r][c - 2] &&
+                        matrix[r][c - 1]->getTipoGem() == tipo &&
+                        matrix[r][c - 2]->getTipoGem() == tipo) ok = false;
+                    if (r >= 2 && matrix[r - 1][c] && matrix[r - 2][c] &&
+                        matrix[r - 1][c]->getTipoGem() == tipo &&
+                        matrix[r - 2][c]->getTipoGem() == tipo) ok = false;
+                }
             } while (!ok);
 
             Gem* g = nullptr;
@@ -72,6 +78,7 @@ void Board::fillBoard() {
             else if (tipo == "Parti")   g = new PartiGem();
             else if (tipo == "Gato")    g = new GatoGem();
             else if (tipo == "Galleta") g = new GalletaGem();
+            else if (tipo == "Ice")     g = new IceGem();
 
             g->setTipoGem(tipo);
             g->setGrid(r, c, CELL, offset.x, offset.y);
@@ -85,20 +92,111 @@ void Board::markForClear(int r, int c) {
 }
 
 void Board::clearMarked() {
-    for (int r = 0; r < N; ++r)
-        for (int c = 0; c < N; ++c)
+    // Primero: aplicar impactos a IceGem adyacentes
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
+            if (marked[r][c]) {
+                // Buscar IceGem en las 4 direcciones adyacentes
+                int dx[4] = { -1, 0, 1, 0 };
+                int dy[4] = { 0, 1, 0, -1 };
+                for (int i = 0; i < 4; ++i) {
+                    int nr = r + dx[i];
+                    int nc = c + dy[i];
+                    if (isValid(nr, nc)) {
+                        Gem* g = matrix[nr][nc];
+                        if (g) {
+                            IceGem* ice = dynamic_cast<IceGem*>(g);
+                            if (ice) {
+                                ice->receiveHit();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Segundo: eliminar gemas marcadas
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
             if (marked[r][c]) {
                 delete matrix[r][c];
                 matrix[r][c] = nullptr;
                 marked[r][c] = false;
             }
+        }
+    }
+
+    // Tercero: eliminar IceGem que ya tienen 2 impactos
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
+            Gem* g = matrix[r][c];
+            if (g) {
+                IceGem* ice = dynamic_cast<IceGem*>(g);
+                if (ice && ice->isEmpty()) {
+                    delete ice;
+                    matrix[r][c] = nullptr;
+                }
+            }
+        }
+    }
+}
+
+bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
+    if (!isValid(r1, c1) || !isValid(r2, c2)) return false;
+    Gem* g1 = matrix[r1][c1];
+    Gem* g2 = matrix[r2][c2];
+    if (!g1 || !g2) return false;
+
+    // ? No permitir mover IceGem
+    if (dynamic_cast<IceGem*>(g1) || dynamic_cast<IceGem*>(g2)) {
+        return false;
+    }
+
+    std::swap(matrix[r1][c1], matrix[r2][c2]);
+
+    bool found = false;
+    for (int r : {r1, r2}) {
+        int count = 1;
+        for (int c = 1; c < N; ++c) {
+            if (matrix[r][c] && matrix[r][c - 1] &&
+                matrix[r][c]->getTipoGem() == matrix[r][c - 1]->getTipoGem()) {
+                ++count;
+                if (count >= 3) { found = true; break; }
+            }
+            else {
+                count = 1;
+            }
+        }
+        if (found) break;
+    }
+
+    if (!found) {
+        for (int c : {c1, c2}) {
+            int count = 1;
+            for (int r = 1; r < N; ++r) {
+                if (matrix[r][c] && matrix[r - 1][c] &&
+                    matrix[r][c]->getTipoGem() == matrix[r - 1][c]->getTipoGem()) {
+                    ++count;
+                    if (count >= 3) { found = true; break; }
+                }
+                else {
+                    count = 1;
+                }
+            }
+            if (found) break;
+        }
+    }
+
+    std::swap(matrix[r1][c1], matrix[r2][c2]);
+    return found;
 }
 
 int Board::findAndClearMatches() {
     bool mark[N][N] = { false };
     int cleared = 0;
 
-    // ---- Barrido horizontal ----
+    // Horizontal
     for (int r = 0; r < N; ++r) {
         int count = 1;
         for (int c = 1; c <= N; ++c) {
@@ -133,7 +231,7 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // ---- Barrido vertical ----
+    // Vertical
     for (int c = 0; c < N; ++c) {
         int count = 1;
         for (int r = 1; r <= N; ++r) {
@@ -168,21 +266,31 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // ---- Ejecutar onMatch en gemas normales ----
+    // Activar gemas en matches (no IceGem)
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             if (mark[r][c] && matrix[r][c]) {
-                matrix[r][c]->onMatch(*this, r, c);
-                delete matrix[r][c];
-                matrix[r][c] = nullptr;
-                ++cleared;
+                // IceGem no se activa
+                if (!dynamic_cast<IceGem*>(matrix[r][c])) {
+                    matrix[r][c]->onMatch(*this, r, c);
+                    delete matrix[r][c];
+                    matrix[r][c] = nullptr;
+                    ++cleared;
+                }
             }
         }
     }
 
-    // ---- Limpiar marcadas por gemas especiales ----
-    clearMarked();
+    // Marcar para eliminación (incluye IceGem si está vacío)
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
+            if (mark[r][c]) {
+                marked[r][c] = true;
+            }
+        }
+    }
 
+    clearMarked();
     return cleared;
 }
 

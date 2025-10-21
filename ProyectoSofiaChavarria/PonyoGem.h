@@ -3,7 +3,7 @@
 
 class PonyoGem : public Gem {
 public:
-    PonyoGem(); // Declaración del constructor
-    virtual void onMatch(Board& board, int row, int col) override;
+    PonyoGem();
     void setTipoGem(const std::string& tipo) override;
+    void onMatch(Board& board, int row, int col) override;
 };
