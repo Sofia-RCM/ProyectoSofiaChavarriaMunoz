@@ -16,13 +16,13 @@ void Game::updateHUD() {
 
     std::string objText;
     if (currentLevel == 1) {
-        objText = "Objetivo: " + std::to_string(TOTORO_GOAL - totoroCleared) + "/30 Totoro";
+        objText = "Objetivo: " + std::to_string(totoroCleared) + "/30 Totoro";
     }
     else if (currentLevel == 2) {
-        objText = "Objetivo: " + std::to_string(ICE_GOAL - iceCleared) + "/10 Hielo";
+        objText = "Objetivo: " + std::to_string(iceCleared) + "/10 Hielo";
     }
     else if (currentLevel == 3) {
-        objText = "Objetivo: " + std::to_string(PONYO_GOAL - ponyoCleared) + "/20 Ponyo";
+        objText = "Objetivo: " + std::to_string(ponyoCleared) + "/20 Ponyo";
     }
     objectiveText.setString(objText);
 }
@@ -204,11 +204,9 @@ void Game::run() {
                                 if (special1 || special2) {
                                     board.swapCells(selR, selC, r, c);
 
-                                    // ✅ Obtener referencias ACTUALIZADAS después del swap
                                     Gem* g1_after = board.getGem(r, c);
                                     Gem* g2_after = board.getGem(selR, selC);
 
-                                    // ✅ Verificar que las gemas aún existan ANTES de usarlas
                                     if (special1 && g1_after) {
                                         g1_after->onMatch(board, r, c);
                                         punctuation += 50;

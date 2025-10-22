@@ -57,7 +57,6 @@ void Board::fillBoard() {
 
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
-
             std::string tipo;
             bool ok;
             do {
@@ -109,7 +108,7 @@ int Board::findAndClearMatches() {
     bool mark[N][N] = { false };
     int cleared = 0;
 
-    // Horizontales
+    // ?? Revisión horizontal
     for (int r = 0; r < N; ++r) {
         int count = 1;
         for (int c = 1; c <= N; ++c) {
@@ -140,7 +139,7 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // Verticales
+    // ?? Revisión vertical
     for (int c = 0; c < N; ++c) {
         int count = 1;
         for (int r = 1; r <= N; ++r) {
@@ -171,11 +170,19 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // Eliminar marcados
+    // ?? Limpieza de coincidencias
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             if (mark[r][c] && matrix[r][c]) {
                 matrix[r][c]->onMatch(*this, r, c);
+
+                Explosion e;
+                e.position = sf::Vector2f(offset.x + c * CELL + CELL / 2, offset.y + r * CELL + CELL / 2);
+                e.radius = 0.f;
+                e.lifetime = 0.5f;
+                e.active = true;
+                explosions.push_back(e);
+
                 markForClear(r, c);
                 ++cleared;
             }
@@ -198,6 +205,9 @@ int Board::applyGravityAndRefill() {
                     matrix[r][c] = matrix[k][c];
                     matrix[k][c] = nullptr;
                     matrix[r][c]->setGrid(r, c, CELL, offset.x, offset.y);
+
+                    // ?? Animación de caída
+                    matrix[r][c]->startFall();
                     ++moved;
                 }
                 else {
@@ -287,12 +297,11 @@ void Board::drawBoard(sf::RenderWindow& window) {
     cell.setOutlineColor(sf::Color(220, 220, 220));
     cell.setOutlineThickness(3);
 
-    for (int r = 0; r < N; ++r) {
+    for (int r = 0; r < N; ++r)
         for (int c = 0; c < N; ++c) {
             cell.setPosition(offset.x + c * CELL + 3, offset.y + r * CELL + 3);
             window.draw(cell);
         }
-    }
 
     for (int r = 0; r < N; ++r)
         for (int c = 0; c < N; ++c)
@@ -338,10 +347,10 @@ bool Board::markForClear(int r, int c) {
     if (isValid(r, c) && matrix[r][c]) {
         std::string tipo = matrix[r][c]->getTipoGem();
 
-        if (pTotoroCount && tipo == "Totoro") {
+        if (pTotoroCount && tipo == "Totoro" && tipo.find("Especial") == std::string::npos) {
             (*pTotoroCount)++;
         }
-        if (pPonyoCount && tipo == "Ponyo") {
+        if (pPonyoCount && tipo == "Ponyo" && tipo.find("Especial") == std::string::npos) {
             (*pPonyoCount)++;
         }
         if (pIceCount && tipo == "Ice") {
@@ -367,9 +376,7 @@ bool Board::markForClear(int r, int c) {
     return false;
 }
 
-void Board::clearMarked() {
-    // ya no usado
-}
+void Board::clearMarked() {}
 
 void Board::placeRandomIce() {
     for (int tries = 0; tries < 50; ++tries) {

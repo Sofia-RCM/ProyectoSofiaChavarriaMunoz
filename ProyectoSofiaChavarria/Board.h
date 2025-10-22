@@ -50,7 +50,7 @@ public:
     Gem* getGem(int r, int c) const { return isValid(r, c) ? matrix[r][c] : nullptr; }
     bool screenToCell(int x, int y, int& fila, int& col);
 
-    bool markForClear(int r, int c);  // Ahora devuelve bool
+    bool markForClear(int r, int c);
     void clearMarked();
 
     void placeRandomIce();
@@ -59,7 +59,6 @@ public:
     int  cellSize()    const { return CELL; }
     sf::Vector2f getOffset() const { return offset; }
 
-    // Para que Game pueda contar
     void setCounters(int* t, int* i, int* p) {
         pTotoroCount = t;
         pIceCount = i;
