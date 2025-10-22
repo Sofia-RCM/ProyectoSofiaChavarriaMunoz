@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
-#include <vector>
 #include "Gem.h"
 
 class Board {
@@ -17,10 +16,13 @@ private:
         sf::Vector2f position;
         float radius = 0.f;
         float lifetime = 0.f;
-        bool active = false;
+        bool  active = false;
     };
+
+    // Si ya usás explosiones visuales, podés implementar; no es obligatorio para que funcione.
+    // (quedan hooks públicos updateExplosions/drawExplosions)
+    // Si no las usás, no pasa nada.
     std::vector<Explosion> explosions;
-    bool marked[N][N] = { false };
 
 public:
     Board();
@@ -30,26 +32,34 @@ public:
     void centerInWindow(int winW, int winH, int hud = 50);
 
     void fillBoard();
-    int findAndClearMatches();
-    int applyGravityAndRefill();
-    int swapCells(int r1, int c1, int r2, int c2);
+    int  findAndClearMatches();       // Detecta y limpia (crea especiales si 4+)
+    int  applyGravityAndRefill();     // Baja gemas y rellena
+    int  swapCells(int r1, int c1, int r2, int c2);
     bool isSwapValid(int r1, int c1, int r2, int c2);
 
     void drawBoard(sf::RenderWindow& window);
     void drawSelection(sf::RenderWindow& window, int fila, int columna);
+
     void updateExplosions(float dt);
     void drawExplosions(sf::RenderWindow& window);
 
-    bool isValid(int i, int j) const;
-    void setGem(int i, int j, Gem* g);
-    void clearCell(int i, int j);
+    bool isValid(int r, int c) const;
+    void setGem(int r, int c, Gem* g);
+    void clearCell(int r, int c);
     Gem* getGem(int r, int c) const { return isValid(r, c) ? matrix[r][c] : nullptr; }
     bool screenToCell(int x, int y, int& fila, int& col);
 
     void markForClear(int r, int c);
     void clearMarked();
 
-    int windowSize() const { return N * CELL; }
-    int cellSize() const { return CELL; }
+    // Utilidad para el juego: colocar un Ice aleatorio (si hay lugar)
+    void placeRandomIce();
+
+    int  windowSize()  const { return N * CELL; }
+    int  cellSize()    const { return CELL; }
     sf::Vector2f getOffset() const { return offset; }
+
+private:
+    // helpers
+    void createSpecialAt(int r, int c, const std::string& tipoBase);
 };

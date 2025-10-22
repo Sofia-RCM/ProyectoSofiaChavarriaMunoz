@@ -1,25 +1,26 @@
 #pragma once
 #include <string>
 
-const int OBJ_ELIMINATE_GEM = 0;
-const int OBJ_CLEAR_OBSTACLES = 1;
-const int OBJ_SCORE_TARGET = 2;
+enum class ObjectiveType {
+    ELIMINATE_GEM,
+    CLEAR_OBSTACLES,
+    SCORE_TARGET
+};
 
 class Objective {
-public:
-    int type;
-    std::string gemType;
+private:
+    ObjectiveType type;
+    std::string gemType; // solo usado si type == ELIMINATE_GEM
     int target;
     int current;
 
-    Objective(int t, int targetAmount, const std::string& gem = "")
-        : type(t), target(targetAmount), current(0), gemType(gem) {}
-
-    bool isCompleted() const {
-        return current >= target;
-    }
-
-    void increment(int amount = 1) {
-        current += amount;
-    }
+public:
+    Objective(ObjectiveType t, int tgt, const std::string& gt = "");
+    void increment(int amount = 1);
+    bool isCompleted() const;
+    int getProgress() const;
+    int getTarget() const;
+    ObjectiveType getType() const;
+    std::string getGemType() const;
+    std::string getDescription() const;
 };

@@ -3,12 +3,13 @@
 
 class IceGem : public Gem {
 private:
-    int hits = 0; // Contador de impactos
+    int health; // Vida (2 golpes para romperse)
 
 public:
     IceGem();
-    void setTipoGem(const std::string& tipo) override;
-    void onMatch(Board& board, int row, int col) override;
-    bool canBeSwapped() const { return false; } // Para bloquear intercambio
-    void receiveHit(); // Llamado desde Board cuando una gema adyacente se elimina
+    virtual ~IceGem();
+
+    void receiveHit();               // Recibe un golpe (reduce vida)
+    bool isBroken() const;           // Devuelve true si ya está rota
+    void onMatch(Board& board, int row, int col) override; // Reacciona si está en match
 };

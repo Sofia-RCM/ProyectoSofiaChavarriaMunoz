@@ -1,19 +1,30 @@
 #include "IceGem.h"
 #include "Board.h"
+#include <iostream>
+using namespace std;
 
-IceGem::IceGem() {}
+IceGem::IceGem() : health(2) {
+    setTipoGem("Ice");
+}
 
-void IceGem::setTipoGem(const std::string& tipo) {
-    Gem::setTipoGem(tipo);
+IceGem::~IceGem() {}
+
+void IceGem::receiveHit() {
+    if (empty) return;  // Si ya está rota, no hace nada
+    health--;
+    cout << "?? IceGem golpeada! Vida restante: " << health << endl;
+
+    if (health <= 0) {
+        cout << "?? IceGem destruida!" << endl;
+        empty = true;
+    }
+}
+
+bool IceGem::isBroken() const {
+    return empty;
 }
 
 void IceGem::onMatch(Board& board, int row, int col) {
-    // IceGem no se activa en matches
-}
-
-void IceGem::receiveHit() {
-    hits++;
-    if (hits >= 2) {
-        empty = true; // Marcar para eliminación
-    }
+    // Si una IceGem está dentro de un match, también se daña
+    receiveHit();
 }
