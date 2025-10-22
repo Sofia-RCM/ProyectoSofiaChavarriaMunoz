@@ -4,15 +4,9 @@
 #include <windows.h>
 #endif
 using namespace sf;
+using namespace std;
 
-Game::Game() {
-    transitionOverlay.setSize({ 880.f, 930.f });
-    transitionOverlay.setFillColor(Color(255, 220, 150, 0));
-
-    transitionText.setCharacterSize(60);
-    transitionText.setFillColor(Color(255, 255, 255, 0));
-    transitionText.setString("¡Nivel Completado!");
-}
+Game::Game() {}
 Game::~Game() {}
 
 void Game::updateHUD() {
@@ -21,11 +15,15 @@ void Game::updateHUD() {
     movesText.setString("Movimientos: " + std::to_string(counter));
     levelText.setString("Nivel: " + std::to_string(currentLevel));
 
-    std::string obj;
-    if (currentLevel == 1) obj = "Objetivo: " + std::to_string(totoroCleared) + "/30 Totoro";
-    else if (currentLevel == 2) obj = "Objetivo: " + std::to_string(iceCleared) + "/10 Hielo";
-    else if (currentLevel == 3) obj = "Objetivo: " + std::to_string(ponyoCleared) + "/20 Ponyo";
-    objectiveText.setString(obj);
+    std::string objText;
+    if (currentLevel == 1)
+        objText = "Objetivo: " + std::to_string(totoroCleared) + "/30 Totoro";
+    else if (currentLevel == 2)
+        objText = "Objetivo: " + std::to_string(iceCleared) + "/10 Hielo";
+    else if (currentLevel == 3)
+        objText = "Objetivo: " + std::to_string(ponyoCleared) + "/20 Ponyo";
+
+    objectiveText.setString(objText);
 }
 
 void Game::coverSpriteToWindow(Sprite& spr, const Vector2u& win) {
@@ -60,12 +58,30 @@ void Game::startGame() {
 }
 
 void Game::nextLevel() {
+    // Efecto de transición
+    sf::Clock clock;
+    float fade = 0.f;
+
+    sf::RenderWindow temp(VideoMode(880, 930), "Match Studio Ghibli");
+    temp.setFramerateLimit(60);
+    sf::RectangleShape overlay(Vector2f(temp.getSize().x, temp.getSize().y));
+    overlay.setFillColor(Color(0, 0, 0, 0));
+
+    while (fade < 255) {
+        fade += 400 * clock.restart().asSeconds();
+        overlay.setFillColor(Color(0, 0, 0, (int)fade));
+        temp.clear(Color::Black);
+        temp.draw(overlay);
+        temp.display();
+    }
+
     if (currentLevel >= 3) {
         state = 2;
         gameOver = true;
         gameState = GameState::WinAll;
         return;
     }
+
     ++currentLevel;
     counter = 20;
     movesSinceIce = 0;
@@ -83,6 +99,7 @@ void Game::nextLevel() {
         board.applyGravityAndRefill();
         cleared = board.findAndClearMatches();
     }
+
     gameState = GameState::Playing;
     updateHUD();
 }
@@ -93,10 +110,7 @@ void Game::checkLevelAdvance() {
     else if (currentLevel == 2) done = (iceCleared >= ICE_GOAL);
     else if (currentLevel == 3) done = (ponyoCleared >= PONYO_GOAL);
 
-    if (done && !levelTransitionActive) {
-        startLevelTransition();
-        pendingNextLevel = true;
-    }
+    if (done) nextLevel();
 }
 
 void Game::processCascadesOnce() {
@@ -109,75 +123,6 @@ void Game::processCascadesOnce() {
     }
 }
 
-void Game::startLevelTransition() {
-    // Activar transición
-    levelTransitionActive = true;
-    transitionTimer = 0.f;
-
-    // Configuración del brillo dorado de fondo
-    transitionOverlay.setSize({ 880.f, 930.f });
-    transitionOverlay.setFillColor(sf::Color(255, 220, 150, 0));
-
-    // Configuración del texto animado
-    transitionText.setFont(font);
-    transitionText.setString("¡Nivel Completado!");
-    transitionText.setCharacterSize(60);
-    transitionText.setFillColor(sf::Color(255, 255, 255, 0));
-
-    // Centrar texto en pantalla
-    sf::FloatRect textRect = transitionText.getLocalBounds();
-    transitionText.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
-    transitionText.setPosition(440.f, 465.f);
-}
-
-void Game::updateLevelTransition(float dt) {
-    if (!levelTransitionActive) return;
-
-    transitionTimer += dt;
-    int overlayAlpha = 0;
-    int textAlpha = 0;
-
-    // Etapa 1: aparición (0 - 0.5s)
-    if (transitionTimer < 0.5f) {
-        float t = transitionTimer / 0.5f;
-        overlayAlpha = static_cast<int>(t * 200);
-        textAlpha = static_cast<int>(t * 255);
-    }
-    // Etapa 2: pausa visible (0.5 - 1.0s)
-    else if (transitionTimer < 1.0f) {
-        overlayAlpha = 200;
-        textAlpha = 255;
-    }
-    // Etapa 3: desvanecimiento y desplazamiento del texto (1.0 - 2.0s)
-    else if (transitionTimer < 2.0f) {
-        float t = (2.0f - transitionTimer);
-        overlayAlpha = static_cast<int>(200 * t);
-        textAlpha = static_cast<int>(255 * t);
-        transitionText.move(0.f, -40.f * dt); // sube suavemente
-    }
-    // Etapa final: pasar de nivel
-    else {
-        levelTransitionActive = false;
-        transitionText.setPosition(440.f, 465.f);
-        if (pendingNextLevel) {
-            pendingNextLevel = false;
-            nextLevel();
-        }
-        return;
-    }
-
-    // Aplicar colores actualizados
-    transitionOverlay.setFillColor(sf::Color(255, 220, 150, overlayAlpha));
-    transitionText.setFillColor(sf::Color(255, 255, 255, textAlpha));
-}
-
-
-void Game::drawLevelTransition(sf::RenderWindow& window) {
-    if (levelTransitionActive) {
-        window.draw(transitionOverlay);
-        window.draw(transitionText);
-    }
-}
 void Game::run() {
     try {
         const int HUD_H = 50;
@@ -186,15 +131,13 @@ void Game::run() {
 
         board.centerInWindow(window.getSize().x, window.getSize().y, HUD_H);
 
-        if (!font.loadFromFile("arial.ttf") && !font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
+        if (!font.loadFromFile("arial.ttf") && !font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
             throw std::string("Error: No se pudo cargar la fuente 'arial.ttf'");
-        }
-        if (!bgTexture.loadFromFile("assets/FondoM.png")) {
+
+        if (!bgTexture.loadFromFile("assets/FondoM.png"))
             throw std::string("Error: No se pudo cargar 'assets/FondoM.png'");
-        }
-        if (!bgFinalTexture.loadFromFile("assets/Fondo2.png")) {
+        if (!bgFinalTexture.loadFromFile("assets/Fondo2.png"))
             throw std::string("Error: No se pudo cargar 'assets/Fondo2.png'");
-        }
 
         hudOk = true;
         scoreText.setFont(font);  scoreText.setCharacterSize(22); scoreText.setFillColor(Color::White);
@@ -203,41 +146,45 @@ void Game::run() {
         overText.setFont(font);   overText.setCharacterSize(40);  overText.setFillColor(Color(0, 100, 0));
         objectiveText.setFont(font); objectiveText.setCharacterSize(20); objectiveText.setFillColor(Color::White);
 
-        playButton.setSize({ 220.f, 90.f });    playButton.setFillColor(Color(0, 100, 0));
+        playButton.setSize({ 220.f, 90.f }); playButton.setFillColor(Color(0, 100, 0));
         restartButton.setSize({ 220.f, 90.f }); restartButton.setFillColor(Color(0, 100, 0));
-        exitButton.setSize({ 220.f, 90.f });    exitButton.setFillColor(Color(0, 100, 0));
+        exitButton.setSize({ 220.f, 90.f }); exitButton.setFillColor(Color(0, 100, 0));
 
-        playText.setFont(font);    playText.setCharacterSize(32); playText.setFillColor(Color::White); playText.setString("Jugar");
+        playText.setFont(font); playText.setCharacterSize(32); playText.setFillColor(Color::White); playText.setString("Jugar");
         restartText.setFont(font); restartText.setCharacterSize(28); restartText.setFillColor(Color::White); restartText.setString("Reiniciar");
-        exitText.setFont(font);    exitText.setCharacterSize(28);  exitText.setFillColor(Color::White);  exitText.setString("Salir");
+        exitText.setFont(font); exitText.setCharacterSize(28); exitText.setFillColor(Color::White); exitText.setString("Salir");
 
-        bgSprite.setTexture(bgTexture);     coverSpriteToWindow(bgSprite, window.getSize());
-        bgFinalSprite.setTexture(bgFinalTexture); coverSpriteToWindow(bgFinalSprite, window.getSize());
+        bgSprite.setTexture(bgTexture);
+        coverSpriteToWindow(bgSprite, window.getSize());
+        bgFinalSprite.setTexture(bgFinalTexture);
+        coverSpriteToWindow(bgFinalSprite, window.getSize());
 
-        auto centerTextFn = [](Text& t, const Vector2f& p) {
+        auto centerText = [](Text& t, const Vector2f& p) {
             FloatRect b = t.getLocalBounds();
             t.setOrigin(b.left + b.width * 0.5f, b.top + b.height * 0.5f);
             t.setPosition(p);
             };
-        auto centerRectFn = [](RectangleShape& r, const Vector2f& p) {
+        auto centerRect = [](RectangleShape& r, const Vector2f& p) {
             r.setOrigin(r.getSize() * 0.5f);
             r.setPosition(p);
             };
 
-        centerRectFn(playButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.75f });
-        centerTextFn(playText, playButton.getPosition());
-        centerRectFn(restartButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.58f });
-        centerTextFn(restartText, restartButton.getPosition());
-        centerRectFn(exitButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.70f });
-        centerTextFn(exitText, exitButton.getPosition());
+        centerRect(playButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.75f });
+        centerText(playText, playButton.getPosition());
+        centerRect(restartButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.58f });
+        centerText(restartText, restartButton.getPosition());
+        centerRect(exitButton, { (float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.70f });
+        centerText(exitText, exitButton.getPosition());
 
         updateHUD();
         Clock clock;
+
         selR = selC = -1;
 
+        // ================= LOOP PRINCIPAL =================
         while (window.isOpen()) {
             float dt = clock.restart().asSeconds();
-            updateLevelTransition(dt);
+
             Event ev;
             while (window.pollEvent(ev)) {
                 if (ev.type == Event::Closed) window.close();
@@ -255,23 +202,24 @@ void Game::run() {
                         int r, c;
                         if (board.screenToCell(ev.mouseButton.x, ev.mouseButton.y, r, c)) {
                             if (selR == -1) {
-                                if (board.getGem(r, c)) { selR = r; selC = c; }
+                                Gem* g = board.getGem(r, c);
+                                if (g) { selR = r; selC = c; }
                             }
                             else {
-                                auto* g1 = board.getGem(selR, selC);
-                                auto* g2 = board.getGem(r, c);
+                                Gem* g1 = board.getGem(selR, selC);
+                                Gem* g2 = board.getGem(r, c);
 
-                                bool special1 = g1 && g1->getIsSpecial() && !g1->getIsActivated();
-                                bool special2 = g2 && g2->getIsSpecial() && !g2->getIsActivated();
+                                bool special1 = (g1 && g1->getIsSpecial() && !g1->getIsActivated());
+                                bool special2 = (g2 && g2->getIsSpecial() && !g2->getIsActivated());
 
                                 if (special1 || special2) {
                                     board.swapCells(selR, selC, r, c);
 
-                                    auto* g1a = board.getGem(r, c);
-                                    auto* g2a = board.getGem(selR, selC);
+                                    Gem* g1_after = board.getGem(r, c);
+                                    Gem* g2_after = board.getGem(selR, selC);
 
-                                    if (special1 && g1a) { g1a->onMatch(board, r, c); punctuation += 50; }
-                                    if (special2 && g2a) { g2a->onMatch(board, selR, selC); punctuation += 50; }
+                                    if (special1 && g1_after) { g1_after->onMatch(board, r, c); punctuation += 50; }
+                                    if (special2 && g2_after) { g2_after->onMatch(board, selR, selC); punctuation += 50; }
 
                                     board.applyGravityAndRefill();
                                     ++movesSinceIce; --counter;
@@ -284,12 +232,11 @@ void Game::run() {
                                     } while (cleared > 0 && ++safety < 12);
 
                                     checkLevelAdvance();
-                                    if (!gameOver && counter <= 0) { counter = 0; gameOver = true; state = 2; }
+                                    if (!gameOver && counter <= 0) { gameOver = true; state = 2; }
                                     updateHUD();
                                 }
                                 else if (board.isSwapValid(selR, selC, r, c)) {
                                     board.swapCells(selR, selC, r, c);
-
                                     ++movesSinceIce; --counter;
                                     if (movesSinceIce >= ICE_EVERY) { board.placeRandomIce(); movesSinceIce = 0; }
 
@@ -300,7 +247,7 @@ void Game::run() {
                                     } while (cleared > 0 && ++safety < 12);
 
                                     checkLevelAdvance();
-                                    if (!gameOver && counter <= 0) { counter = 0; gameOver = true; state = 2; }
+                                    if (!gameOver && counter <= 0) { gameOver = true; state = 2; }
                                     updateHUD();
                                 }
                                 selR = selC = -1;
@@ -323,6 +270,11 @@ void Game::run() {
                     }
                 }
             }
+
+            // ------------------- RENDER -------------------
+            board.updateAnimations(dt);
+            board.updateExplosions(dt);
+            board.updateFlashes(dt);
 
             window.clear();
 
@@ -348,14 +300,14 @@ void Game::run() {
                 board.drawBoard(window);
                 if (gameState == GameState::Playing && selR != -1)
                     board.drawSelection(window, selR, selC);
-
-                drawLevelTransition(window);
             }
             else if (state == 2) {
                 window.draw(bgFinalSprite);
-                std::string msg = (gameState == GameState::WinAll)
+
+                string msg = (gameState == GameState::WinAll)
                     ? "¡Ganaste todos los niveles!"
                     : ("Puntos: " + std::to_string(punctuation));
+
                 overText.setString(msg);
                 FloatRect b = overText.getLocalBounds();
                 overText.setOrigin(b.left + b.width * 0.5f, b.top + b.height * 0.5f);
@@ -371,16 +323,19 @@ void Game::run() {
 
     }
     catch (const char* msg) {
+        cerr << "[❌ ERROR] " << msg << endl;
 #ifdef _WIN32
         MessageBoxA(nullptr, msg, "Error Crítico", MB_ICONERROR);
 #endif
     }
     catch (const std::string& msg) {
+        cerr << "[❌ ERROR] " << msg << endl;
 #ifdef _WIN32
         MessageBoxA(nullptr, msg.c_str(), "Error Crítico", MB_ICONERROR);
 #endif
     }
     catch (...) {
+        cerr << "[❌ ERROR] Excepción desconocida" << endl;
 #ifdef _WIN32
         MessageBoxA(nullptr, "Error desconocido. El juego no puede continuar.", "Error", MB_ICONERROR);
 #endif

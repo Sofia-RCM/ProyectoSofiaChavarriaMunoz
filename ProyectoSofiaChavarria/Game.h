@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <string>
 #include "Board.h"
 
 enum class GameState {
@@ -13,25 +14,31 @@ public:
     void run();
 
 private:
+    // --- Estado general ---
     int state = 0;
     GameState gameState = GameState::Menu;
     bool gameOver = false;
 
+    // --- Fuente y HUD ---
     sf::Font font;
     bool hudOk = false;
     sf::Text scoreText, movesText, overText, levelText, objectiveText;
 
+    // --- Fondo y texturas ---
     sf::Texture bgTexture, bgFinalTexture;
-    sf::Sprite  bgSprite, bgFinalSprite;
+    sf::Sprite bgSprite, bgFinalSprite;
 
+    // --- Botones ---
     sf::RectangleShape playButton, restartButton, exitButton;
     sf::Text playText, restartText, exitText;
 
+    // --- Variables de juego ---
     int punctuation = 0;
     int counter = 20;
 
     Board board;
 
+    // --- Niveles ---
     int currentLevel = 1;
     const int TOTORO_GOAL = 30;
     const int ICE_GOAL = 10;
@@ -41,27 +48,21 @@ private:
     int iceCleared = 0;
     int ponyoCleared = 0;
 
-    int  movesSinceIce = 0;
+    // --- Obstáculos dinámicos ---
+    int movesSinceIce = 0;
     static const int ICE_EVERY = 5;
 
+    // --- Selección ---
     int selR = -1, selC = -1;
 
+    // --- Métodos internos ---
     void updateHUD();
     static void coverSpriteToWindow(sf::Sprite& spr, const sf::Vector2u& win);
-
     void startGame();
     void nextLevel();
     void checkLevelAdvance();
     void processCascadesOnce();
 
-    // Animación transición de nivel
-    bool levelTransitionActive = false;
-    bool pendingNextLevel = false;
-    float transitionTimer = 0.f;
-    sf::RectangleShape transitionOverlay;
-    sf::Text transitionText;
-
-    void startLevelTransition();
-    void updateLevelTransition(float dt);
-    void drawLevelTransition(sf::RenderWindow& window);
+    // --- Animación de transición de nivel ---
+    void showLevelTransition(sf::RenderWindow& window, int nextLevel);
 };
