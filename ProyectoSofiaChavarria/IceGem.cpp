@@ -12,10 +12,8 @@ IceGem::~IceGem() {}
 void IceGem::receiveHit() {
     if (empty) return;  // Si ya está rota, no hace nada
     health--;
-    cout << "?? IceGem golpeada! Vida restante: " << health << endl;
-
+   
     if (health <= 0) {
-        cout << "?? IceGem destruida!" << endl;
         empty = true;
     }
 }

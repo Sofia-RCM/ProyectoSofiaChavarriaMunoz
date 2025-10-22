@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <string>
 #include "Board.h"
 
 enum class GameState {
@@ -20,7 +19,7 @@ private:
 
     sf::Font font;
     bool hudOk = false;
-    sf::Text scoreText, movesText, overText, levelText, objectiveText; // ? nuevo
+    sf::Text scoreText, movesText, overText, levelText, objectiveText;
 
     sf::Texture bgTexture, bgFinalTexture;
     sf::Sprite  bgSprite, bgFinalSprite;
@@ -33,18 +32,16 @@ private:
 
     Board board;
 
-    // Objetivos por nivel
+    int currentLevel = 1;
+    const int TOTORO_GOAL = 30;
+    const int ICE_GOAL = 10;
+    const int PONYO_GOAL = 20;
+
     int totoroCleared = 0;
     int iceCleared = 0;
     int ponyoCleared = 0;
 
-    const int TOTORO_GOAL = 30;
-    const int ICE_GOAL = 5;
-    const int PONYO_GOAL = 50;
-
-    int currentLevel = 1;
-
-    int movesSinceIce = 0;
+    int  movesSinceIce = 0;
     static const int ICE_EVERY = 5;
 
     int selR = -1, selC = -1;
@@ -56,4 +53,15 @@ private:
     void nextLevel();
     void checkLevelAdvance();
     void processCascadesOnce();
+
+    // Animación transición de nivel
+    bool levelTransitionActive = false;
+    bool pendingNextLevel = false;
+    float transitionTimer = 0.f;
+    sf::RectangleShape transitionOverlay;
+    sf::Text transitionText;
+
+    void startLevelTransition();
+    void updateLevelTransition(float dt);
+    void drawLevelTransition(sf::RenderWindow& window);
 };

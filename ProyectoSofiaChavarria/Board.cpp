@@ -8,7 +8,6 @@
 #include "NormalGem.h"
 #include <cstdlib>
 #include <ctime>
-#include <iostream>
 
 Board::Board() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -25,8 +24,7 @@ void Board::setOffset(float x, float y) {
     offset = { x, y };
     for (int r = 0; r < N; ++r)
         for (int c = 0; c < N; ++c)
-            if (matrix[r][c])
-                matrix[r][c]->setGrid(r, c, CELL, offset.x, offset.y);
+            if (matrix[r][c]) matrix[r][c]->setGrid(r, c, CELL, offset.x, offset.y);
 }
 
 void Board::centerInWindow(int winW, int winH, int hud) {
@@ -37,24 +35,23 @@ void Board::centerInWindow(int winW, int winH, int hud) {
     setOffset(offX, offY);
 }
 
-bool Board::isValid(int r, int c) const {
-    return (r >= 0 && r < N && c >= 0 && c < N);
+bool Board::isValid(int i, int j) const {
+    return (i >= 0 && i < N && j >= 0 && j < N);
 }
 
-void Board::setGem(int r, int c, Gem* g) {
-    if (!isValid(r, c)) return;
-    matrix[r][c] = g;
+void Board::setGem(int i, int j, Gem* g) {
+    if (!isValid(i, j)) return;
+    matrix[i][j] = g;
 }
 
-void Board::clearCell(int r, int c) {
-    if (!isValid(r, c)) return;
-    delete matrix[r][c];
-    matrix[r][c] = nullptr;
+void Board::clearCell(int i, int j) {
+    if (!isValid(i, j)) return;
+    delete matrix[i][j];
+    matrix[i][j] = nullptr;
 }
 
 void Board::fillBoard() {
     const std::string tipos[6] = { "Totoro","Ponyo","Parti","Gato","Galleta","Ice" };
-
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             std::string tipo;
@@ -74,13 +71,13 @@ void Board::fillBoard() {
             } while (!ok);
 
             Gem* g = nullptr;
-            if (tipo == "Totoro")        g = new TotoroGem();
-            else if (tipo == "Ponyo")    g = new PonyoGem();
-            else if (tipo == "Parti")    g = new PartiGem();
-            else if (tipo == "Gato")     g = new GatoGem();
-            else if (tipo == "Galleta")  g = new GalletaGem();
-            else if (tipo == "Ice")      g = new IceGem();
-            else                         g = new NormalGem();
+            if (tipo == "Totoro")       g = new TotoroGem();
+            else if (tipo == "Ponyo")   g = new PonyoGem();
+            else if (tipo == "Parti")   g = new PartiGem();
+            else if (tipo == "Gato")    g = new GatoGem();
+            else if (tipo == "Galleta") g = new GalletaGem();
+            else if (tipo == "Ice")     g = new IceGem();
+            else                        g = new NormalGem();
 
             g->setTipoGem(tipo);
             g->setGrid(r, c, CELL, offset.x, offset.y);
@@ -98,7 +95,6 @@ void Board::createSpecialAt(int r, int c, const std::string& tipoBase) {
     else if (tipoBase == "Gato")    s = new GatoGem();
     else if (tipoBase == "Galleta") s = new GalletaGem();
     else                            s = new NormalGem();
-
     s->setTipoGem(tipoBase + "Especial");
     s->setGrid(r, c, CELL, offset.x, offset.y);
     matrix[r][c] = s;
@@ -108,19 +104,16 @@ int Board::findAndClearMatches() {
     bool mark[N][N] = { false };
     int cleared = 0;
 
-    // ?? Revisión horizontal
+    // Horizontales
     for (int r = 0; r < N; ++r) {
         int count = 1;
         for (int c = 1; c <= N; ++c) {
             bool same = (c < N && matrix[r][c] && matrix[r][c - 1] &&
                 matrix[r][c]->getTipoGem() == matrix[r][c - 1]->getTipoGem());
-            if (same) {
-                ++count;
-            }
+            if (same) ++count;
             else {
                 if (count >= 3 && matrix[r][c - 1]) {
                     for (int k = c - count; k < c; ++k) mark[r][k] = true;
-
                     if (count >= 4) {
                         int center = c - count + count / 2;
                         if (matrix[r][center]) {
@@ -139,19 +132,16 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // ?? Revisión vertical
+    // Verticales
     for (int c = 0; c < N; ++c) {
         int count = 1;
         for (int r = 1; r <= N; ++r) {
             bool same = (r < N && matrix[r][c] && matrix[r - 1][c] &&
                 matrix[r][c]->getTipoGem() == matrix[r - 1][c]->getTipoGem());
-            if (same) {
-                ++count;
-            }
+            if (same) ++count;
             else {
                 if (count >= 3 && matrix[r - 1][c]) {
                     for (int k = r - count; k < r; ++k) mark[k][c] = true;
-
                     if (count >= 4) {
                         int center = r - count + count / 2;
                         if (matrix[center][c]) {
@@ -170,7 +160,7 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // ?? Limpieza de coincidencias
+    // Borrar marcados (disparando poderes y contadores)
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             if (mark[r][c] && matrix[r][c]) {
@@ -178,9 +168,7 @@ int Board::findAndClearMatches() {
 
                 Explosion e;
                 e.position = sf::Vector2f(offset.x + c * CELL + CELL / 2, offset.y + r * CELL + CELL / 2);
-                e.radius = 0.f;
-                e.lifetime = 0.5f;
-                e.active = true;
+                e.radius = 0.f; e.lifetime = 0.5f; e.active = true;
                 explosions.push_back(e);
 
                 markForClear(r, c);
@@ -205,9 +193,6 @@ int Board::applyGravityAndRefill() {
                     matrix[r][c] = matrix[k][c];
                     matrix[k][c] = nullptr;
                     matrix[r][c]->setGrid(r, c, CELL, offset.x, offset.y);
-
-                    // ?? Animación de caída
-                    matrix[r][c]->startFall();
                     ++moved;
                 }
                 else {
@@ -245,13 +230,11 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
     Gem* g2 = matrix[r2][c2];
     if (!g1 || !g2) return false;
 
-    if (dynamic_cast<IceGem*>(g1) || dynamic_cast<IceGem*>(g2))
-        return false;
+    if (dynamic_cast<IceGem*>(g1) || dynamic_cast<IceGem*>(g2)) return false;
 
     std::swap(matrix[r1][c1], matrix[r2][c2]);
 
     bool found = false;
-
     for (int r : {r1, r2}) {
         int count = 1;
         for (int c = 1; c < N; ++c) {
@@ -263,7 +246,6 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
         }
         if (found) break;
     }
-
     if (!found) {
         for (int c : {c1, c2}) {
             int count = 1;
@@ -277,7 +259,6 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
             if (found) break;
         }
     }
-
     std::swap(matrix[r1][c1], matrix[r2][c2]);
     return found;
 }
@@ -344,21 +325,19 @@ void Board::drawExplosions(sf::RenderWindow& window) {
 }
 
 bool Board::markForClear(int r, int c) {
-    if (isValid(r, c) && matrix[r][c]) {
-        std::string tipo = matrix[r][c]->getTipoGem();
+    if (!isValid(r, c) || !matrix[r][c]) return false;
 
-        if (pTotoroCount && tipo == "Totoro" && tipo.find("Especial") == std::string::npos) {
-            (*pTotoroCount)++;
-        }
-        if (pPonyoCount && tipo == "Ponyo" && tipo.find("Especial") == std::string::npos) {
-            (*pPonyoCount)++;
-        }
-        if (pIceCount && tipo == "Ice") {
-            (*pIceCount)++;
-        }
+    std::string tipo = matrix[r][c]->getTipoGem();
 
-        IceGem* ice = dynamic_cast<IceGem*>(matrix[r][c]);
-        if (ice && !ice->isBroken()) {
+    if (pTotoroCount && tipo == "Totoro" && tipo.find("Especial") == std::string::npos)
+        (*pTotoroCount)++;
+    if (pPonyoCount && tipo == "Ponyo" && tipo.find("Especial") == std::string::npos)
+        (*pPonyoCount)++;
+    if (pIceCount && tipo == "Ice")
+        (*pIceCount)++;
+
+    if (auto* ice = dynamic_cast<IceGem*>(matrix[r][c])) {
+        if (!ice->isBroken()) {
             ice->receiveHit();
             if (ice->isBroken()) {
                 delete matrix[r][c];
@@ -367,13 +346,11 @@ bool Board::markForClear(int r, int c) {
             }
             return false;
         }
-        else {
-            delete matrix[r][c];
-            matrix[r][c] = nullptr;
-            return false;
-        }
     }
-    return false;
+
+    delete matrix[r][c];
+    matrix[r][c] = nullptr;
+    return true;
 }
 
 void Board::clearMarked() {}

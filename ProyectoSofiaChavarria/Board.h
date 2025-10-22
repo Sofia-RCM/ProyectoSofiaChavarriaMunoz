@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 #include "Gem.h"
 
 class Board {
@@ -20,7 +21,6 @@ private:
     };
     std::vector<Explosion> explosions;
 
-    // Punteros para contar objetivos (usados por Game)
     int* pTotoroCount = nullptr;
     int* pIceCount = nullptr;
     int* pPonyoCount = nullptr;
@@ -40,13 +40,12 @@ public:
 
     void drawBoard(sf::RenderWindow& window);
     void drawSelection(sf::RenderWindow& window, int fila, int columna);
-
     void updateExplosions(float dt);
     void drawExplosions(sf::RenderWindow& window);
 
-    bool isValid(int r, int c) const;
-    void setGem(int r, int c, Gem* g);
-    void clearCell(int r, int c);
+    bool isValid(int i, int j) const;
+    void setGem(int i, int j, Gem* g);
+    void clearCell(int i, int j);
     Gem* getGem(int r, int c) const { return isValid(r, c) ? matrix[r][c] : nullptr; }
     bool screenToCell(int x, int y, int& fila, int& col);
 
@@ -55,15 +54,11 @@ public:
 
     void placeRandomIce();
 
-    int  windowSize()  const { return N * CELL; }
-    int  cellSize()    const { return CELL; }
+    int windowSize() const { return N * CELL; }
+    int cellSize()   const { return CELL; }
     sf::Vector2f getOffset() const { return offset; }
 
-    void setCounters(int* t, int* i, int* p) {
-        pTotoroCount = t;
-        pIceCount = i;
-        pPonyoCount = p;
-    }
+    void setCounters(int* t, int* i, int* p) { pTotoroCount = t; pIceCount = i; pPonyoCount = p; }
 
 private:
     void createSpecialAt(int r, int c, const std::string& tipoBase);
