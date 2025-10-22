@@ -18,11 +18,12 @@ private:
         float lifetime = 0.f;
         bool  active = false;
     };
-
-    // Si ya usás explosiones visuales, podés implementar; no es obligatorio para que funcione.
-    // (quedan hooks públicos updateExplosions/drawExplosions)
-    // Si no las usás, no pasa nada.
     std::vector<Explosion> explosions;
+
+    // Punteros para contar objetivos (usados por Game)
+    int* pTotoroCount = nullptr;
+    int* pIceCount = nullptr;
+    int* pPonyoCount = nullptr;
 
 public:
     Board();
@@ -32,8 +33,8 @@ public:
     void centerInWindow(int winW, int winH, int hud = 50);
 
     void fillBoard();
-    int  findAndClearMatches();       // Detecta y limpia (crea especiales si 4+)
-    int  applyGravityAndRefill();     // Baja gemas y rellena
+    int  findAndClearMatches();
+    int  applyGravityAndRefill();
     int  swapCells(int r1, int c1, int r2, int c2);
     bool isSwapValid(int r1, int c1, int r2, int c2);
 
@@ -49,17 +50,22 @@ public:
     Gem* getGem(int r, int c) const { return isValid(r, c) ? matrix[r][c] : nullptr; }
     bool screenToCell(int x, int y, int& fila, int& col);
 
-    void markForClear(int r, int c);
+    bool markForClear(int r, int c);  // Ahora devuelve bool
     void clearMarked();
 
-    // Utilidad para el juego: colocar un Ice aleatorio (si hay lugar)
     void placeRandomIce();
 
     int  windowSize()  const { return N * CELL; }
     int  cellSize()    const { return CELL; }
     sf::Vector2f getOffset() const { return offset; }
 
+    // Para que Game pueda contar
+    void setCounters(int* t, int* i, int* p) {
+        pTotoroCount = t;
+        pIceCount = i;
+        pPonyoCount = p;
+    }
+
 private:
-    // helpers
     void createSpecialAt(int r, int c, const std::string& tipoBase);
 };

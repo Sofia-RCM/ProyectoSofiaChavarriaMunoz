@@ -91,7 +91,6 @@ void Board::fillBoard() {
 }
 
 void Board::createSpecialAt(int r, int c, const std::string& tipoBase) {
-    // Elimina la gema actual y coloca una especial del MISMO tipo con "<Tipo>Especial"
     delete matrix[r][c];
     Gem* s = nullptr;
     if (tipoBase == "Totoro")       s = new TotoroGem();
@@ -101,7 +100,7 @@ void Board::createSpecialAt(int r, int c, const std::string& tipoBase) {
     else if (tipoBase == "Galleta") s = new GalletaGem();
     else                            s = new NormalGem();
 
-    s->setTipoGem(tipoBase + "Especial");  // carga "gema<Tipo>Especial.png"
+    s->setTipoGem(tipoBase + "Especial");
     s->setGrid(r, c, CELL, offset.x, offset.y);
     matrix[r][c] = s;
 }
@@ -121,18 +120,16 @@ int Board::findAndClearMatches() {
             }
             else {
                 if (count >= 3 && matrix[r][c - 1]) {
-                    std::string tipo = matrix[r][c - 1]->getTipoGem();
                     for (int k = c - count; k < c; ++k) mark[r][k] = true;
 
                     if (count >= 4) {
                         int center = c - count + count / 2;
                         if (matrix[r][center]) {
                             std::string base = matrix[r][center]->getTipoGem();
-                            // si ya es "XEspecial", recorta base:
                             auto pos = base.find("Especial");
                             if (pos != std::string::npos) base = base.substr(0, pos);
                             if (base != "Ice") {
-                                mark[r][center] = false; // no eliminar esa, se vuelve especial
+                                mark[r][center] = false;
                                 createSpecialAt(r, center, base);
                             }
                         }
@@ -154,7 +151,6 @@ int Board::findAndClearMatches() {
             }
             else {
                 if (count >= 3 && matrix[r - 1][c]) {
-                    std::string tipo = matrix[r - 1][c]->getTipoGem();
                     for (int k = r - count; k < r; ++k) mark[k][c] = true;
 
                     if (count >= 4) {
@@ -175,14 +171,12 @@ int Board::findAndClearMatches() {
         }
     }
 
-    // Activar efectos y eliminar marcados
+    // Eliminar marcados
     for (int r = 0; r < N; ++r) {
         for (int c = 0; c < N; ++c) {
             if (mark[r][c] && matrix[r][c]) {
-                // IceGem no se "activa", pero si está marcada se elimina aquí
                 matrix[r][c]->onMatch(*this, r, c);
-                delete matrix[r][c];
-                matrix[r][c] = nullptr;
+                markForClear(r, c);
                 ++cleared;
             }
         }
@@ -241,7 +235,6 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
     Gem* g2 = matrix[r2][c2];
     if (!g1 || !g2) return false;
 
-    // No permitir mover IceGem
     if (dynamic_cast<IceGem*>(g1) || dynamic_cast<IceGem*>(g2))
         return false;
 
@@ -249,7 +242,6 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
 
     bool found = false;
 
-    // filas r1 y r2
     for (int r : {r1, r2}) {
         int count = 1;
         for (int c = 1; c < N; ++c) {
@@ -262,7 +254,6 @@ bool Board::isSwapValid(int r1, int c1, int r2, int c2) {
         if (found) break;
     }
 
-    // columnas c1 y c2
     if (!found) {
         for (int c : {c1, c2}) {
             int count = 1;
@@ -343,29 +334,48 @@ void Board::drawExplosions(sf::RenderWindow& window) {
     }
 }
 
-void Board::markForClear(int r, int c) {
+bool Board::markForClear(int r, int c) {
     if (isValid(r, c) && matrix[r][c]) {
-        // Si hay IceGem adyacentes, aplicar "golpe" (dos golpes = se va)
-        // (esto lo podés extender si querés)
-        // Eliminar o activar:
-        // acá solamente marcamos, el onMatch de cada gema especial llamará markForClear adicional si hace falta.
-        delete matrix[r][c];
-        matrix[r][c] = nullptr;
+        std::string tipo = matrix[r][c]->getTipoGem();
+
+        if (pTotoroCount && tipo == "Totoro") {
+            (*pTotoroCount)++;
+        }
+        if (pPonyoCount && tipo == "Ponyo") {
+            (*pPonyoCount)++;
+        }
+        if (pIceCount && tipo == "Ice") {
+            (*pIceCount)++;
+        }
+
+        IceGem* ice = dynamic_cast<IceGem*>(matrix[r][c]);
+        if (ice && !ice->isBroken()) {
+            ice->receiveHit();
+            if (ice->isBroken()) {
+                delete matrix[r][c];
+                matrix[r][c] = nullptr;
+                return true;
+            }
+            return false;
+        }
+        else {
+            delete matrix[r][c];
+            matrix[r][c] = nullptr;
+            return false;
+        }
     }
+    return false;
 }
 
 void Board::clearMarked() {
-    // ya estamos eliminando directamente en markForClear() en esta versión
+    // ya no usado
 }
 
 void Board::placeRandomIce() {
-    // coloca una IceGem en una celda donde NO haya Ice y exista una gema
-    // simple: intenta hasta 50 veces
     for (int tries = 0; tries < 50; ++tries) {
         int r = std::rand() % N;
         int c = std::rand() % N;
         if (!matrix[r][c]) continue;
-        // no reemplazar Ice con Ice
         if (matrix[r][c]->getTipoGem().find("Ice") != std::string::npos) continue;
 
         delete matrix[r][c];

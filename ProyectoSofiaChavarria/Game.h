@@ -14,13 +14,13 @@ public:
     void run();
 
 private:
-    int state = 0;                // 0=menu,1=juego,2=final
+    int state = 0;
     GameState gameState = GameState::Menu;
     bool gameOver = false;
 
     sf::Font font;
     bool hudOk = false;
-    sf::Text scoreText, movesText, overText, levelText;
+    sf::Text scoreText, movesText, overText, levelText, objectiveText; // ? nuevo
 
     sf::Texture bgTexture, bgFinalTexture;
     sf::Sprite  bgSprite, bgFinalSprite;
@@ -33,18 +33,20 @@ private:
 
     Board board;
 
-    // Niveles
+    // Objetivos por nivel
+    int totoroCleared = 0;
+    int iceCleared = 0;
+    int ponyoCleared = 0;
+
+    const int TOTORO_GOAL = 30;
+    const int ICE_GOAL = 5;
+    const int PONYO_GOAL = 50;
+
     int currentLevel = 1;
-    const int levelGoals[3] = { 200, 400, 600 };
 
-    // Cascadas temporizadas
-    float stateTimer = 0.f;
-
-    // Ice cada X movimientos
     int movesSinceIce = 0;
-    static const int ICE_EVERY = 5; // confirmado por ti
+    static const int ICE_EVERY = 5;
 
-    // selección
     int selR = -1, selC = -1;
 
     void updateHUD();

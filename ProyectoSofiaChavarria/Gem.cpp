@@ -6,23 +6,18 @@ Gem::~Gem() {}
 
 void Gem::setTipoGem(const std::string& tipo) {
     tipoGem = tipo;
-
-    // USAMOS PREFIJO "gema"
     std::string ruta = "assets/gema" + tipo + ".png";
 
     if (!texture.loadFromFile(ruta)) {
-        std::cerr << "[❌] Error al cargar textura: " << ruta << std::endl;
-        empty = true;
-        return;
+        throw "Error: No se pudo cargar la textura: " + ruta;
     }
 
     sprite.setTexture(texture);
-    // Escala que encaje bien en CELL=96
     sprite.setScale(0.1f, 0.1f);
 
-    // Si el nombre contiene "Especial" es especial
     isSpecial = (tipo.find("Especial") != std::string::npos);
     isActivated = false;
+    empty = false;
 }
 
 void Gem::setGrid(int fila, int columna, int cellSize, float offsetX, float offsetY) {

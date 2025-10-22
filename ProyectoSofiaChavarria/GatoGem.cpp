@@ -17,5 +17,6 @@ void GatoGem::onMatch(Board& board, int row, int col) {
             if (board.isValid(nr, nc))
                 board.markForClear(nr, nc);
         }
+        board.markForClear(row, col);
     }
 }
