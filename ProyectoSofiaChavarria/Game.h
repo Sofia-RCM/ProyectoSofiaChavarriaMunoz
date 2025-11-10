@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "Board.h"
-
+#include "Ranking.h"
 enum class GameState {
     Menu, Playing, Swapping, Clearing, Falling, GameOver, WinAll
 };
@@ -14,6 +14,7 @@ public:
     void run();
 
 private:
+    Ranking ranking;
     // --- Estado general ---
     int state = 0;
     GameState gameState = GameState::Menu;
@@ -37,7 +38,6 @@ private:
     int counter = 20;
 
     Board board;
-
     // --- Niveles ---
     int currentLevel = 1;
     const int TOTORO_GOAL = 30;

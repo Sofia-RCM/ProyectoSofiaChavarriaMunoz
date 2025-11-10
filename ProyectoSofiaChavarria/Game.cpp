@@ -3,6 +3,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include "Ranking.h"
+
 using namespace sf;
 using namespace std;
 
@@ -182,6 +184,11 @@ void Game::run() {
 
         selR = selC = -1;
 
+        // --- VARIABLES DEL RANKING (visibles en toda la función) ---
+        std::string playerName;
+        bool saved = false;
+        sf::Uint32 lastChar = 0;   // para evitar repetición de caracteres
+
         while (window.isOpen()) {
             float dt = clock.restart().asSeconds();
 
@@ -250,6 +257,28 @@ void Game::run() {
                     }
                 }
                 else if (state == 2) {
+                    // --- Eventos de la pantalla final ---
+
+                    // Captura de texto (filtrada para evitar repetición de caracteres)
+                    if (ev.type == sf::Event::TextEntered && !saved) {
+                        if (ev.text.unicode == '\b' && !playerName.empty()) playerName.pop_back();
+                        else if (ev.text.unicode >= 32 && ev.text.unicode < 128 &&
+                            ev.text.unicode != lastChar && playerName.size() < 10) {
+                            playerName += static_cast<char>(ev.text.unicode);
+                            lastChar = ev.text.unicode;
+                        }
+                    }
+                    if (ev.type == sf::Event::KeyReleased) lastChar = 0;
+
+                    // Guardar al presionar Enter
+                    if (ev.type == sf::Event::KeyPressed && ev.key.code == sf::Keyboard::Enter && !saved) {
+                        if (!playerName.empty()) {
+                            ranking.addScore(playerName, punctuation);
+                            saved = true;
+                        }
+                    }
+
+                    // Botones
                     if (ev.type == Event::MouseButtonPressed && ev.mouseButton.button == Mouse::Left) {
                         Vector2f m{ (float)ev.mouseButton.x, (float)ev.mouseButton.y };
                         if (restartButton.getGlobalBounds().contains(m)) {
@@ -257,6 +286,10 @@ void Game::run() {
                             punctuation = 0; counter = 20; gameOver = false;
                             currentLevel = 1; movesSinceIce = 0;
                             updateHUD();
+                            // limpiar nombre/réplica
+                            playerName.clear();
+                            saved = false;
+                            lastChar = 0;
                         }
                         else if (exitButton.getGlobalBounds().contains(m)) {
                             window.close();
@@ -283,8 +316,8 @@ void Game::run() {
                 hudBg.setFillColor(Color(0, 100, 0, 230));
                 window.draw(hudBg);
 
-                scoreText.setPosition(20, 14);
-                objectiveText.setPosition(20, 40);
+                scoreText.setPosition(20, 5);
+                objectiveText.setPosition(20, 28);
                 movesText.setPosition((float)window.getSize().x - 240.f, 14.f);
                 levelText.setPosition((float)window.getSize().x * 0.5f - 60.f, 14.f);
 
@@ -299,20 +332,94 @@ void Game::run() {
                 if (gameState == GameState::Playing && selR != -1)
                     board.drawSelection(window, selR, selC);
             }
+           
             else if (state == 2) {
+                // --- Fondo final ---
                 window.draw(bgFinalSprite);
-                string msg = (gameState == GameState::WinAll)
+
+                // --- Mensaje final ("Puntos" o "Ganaste...") ---
+                std::string msg = (gameState == GameState::WinAll)
                     ? "¡Ganaste todos los niveles!"
-                    : ("Puntos: " + std::to_string(punctuation));
+                    : "Puntos: " + std::to_string(punctuation);
+
                 overText.setString(msg);
                 FloatRect b = overText.getLocalBounds();
                 overText.setOrigin(b.left + b.width * 0.5f, b.top + b.height * 0.5f);
-                overText.setPosition((float)window.getSize().x * 0.5f, (float)window.getSize().y * 0.40f);
+                overText.setPosition(window.getSize().x * 0.5f, window.getSize().y * 0.20f);
+                overText.setFillColor(sf::Color(0, 100, 0)); // Verde oscuro
                 window.draw(overText);
 
-                window.draw(restartButton); window.draw(restartText);
-                window.draw(exitButton);    window.draw(exitText);
+                // --- Entrada de nombre ---
+                sf::Text inputText;
+                inputText.setFont(font);
+                inputText.setCharacterSize(24);
+                inputText.setFillColor(sf::Color(0, 100, 0)); // verde oscuro igual que puntos
+                inputText.setString("Nombre: " + playerName + "_");
+                FloatRect nb = inputText.getLocalBounds();
+                inputText.setOrigin(nb.left + nb.width * 0.5f, nb.top + nb.height * 0.5f);
+                inputText.setPosition(window.getSize().x * 0.5f, window.getSize().y * 0.30f);
+                window.draw(inputText);
+
+                // --- Mostrar TOP JUGADORES ---
+                auto top = ranking.getTopScores();
+
+                sf::Text rankText;
+                rankText.setFont(font);
+                rankText.setCharacterSize(26);
+                rankText.setFillColor(sf::Color(0, 100, 0));
+                rankText.setStyle(sf::Text::Bold);
+
+                // título centrado
+                rankText.setString("TOP JUGADORES ");
+                FloatRect tb = rankText.getLocalBounds();
+                rankText.setOrigin(tb.left + tb.width * 0.5f, tb.top + tb.height * 0.5f);
+                rankText.setPosition(window.getSize().x * 0.5f, window.getSize().y * 0.40f);
+                window.draw(rankText);
+
+                // lista centrada
+                for (size_t i = 0; i < top.size(); ++i) {
+                    rankText.setString(std::to_string(i + 1) + ". " + top[i].name + " - " + std::to_string(top[i].score));
+                    FloatRect lb = rankText.getLocalBounds();
+                    rankText.setOrigin(lb.left + lb.width * 0.5f, lb.top + lb.height * 0.5f);
+                    rankText.setPosition(window.getSize().x * 0.5f, window.getSize().y * 0.45f + i * 35);
+                    window.draw(rankText);
+                }
+
+                // --- Botones alineados horizontalmente ---
+
+                float buttonY = window.getSize().y * 0.82f;
+                float centerX = window.getSize().x * 0.5f;
+
+                // 🔹 Mover ambos un poco a la derecha
+                float offset = 120.f;    // desplazamiento extra hacia la derecha
+                float spacing = 160.f;  // separación entre botones
+
+                restartButton.setPosition(centerX - spacing - restartButton.getSize().x * 0.5f + offset, buttonY);
+                restartText.setPosition(restartButton.getPosition().x + 5.f, buttonY + 5.f);
+
+                exitButton.setPosition(centerX + spacing - exitButton.getSize().x * 0.5f + offset, buttonY);
+                exitText.setPosition(exitButton.getPosition().x + 5.f, buttonY + 5.f);
+
+
+                window.draw(restartButton);
+                window.draw(restartText);
+                window.draw(exitButton);
+                window.draw(exitText);
+
+                // --- Mensaje de guardado ---
+                if (saved) {
+                    sf::Text savedMsg;
+                    savedMsg.setFont(font);
+                    savedMsg.setCharacterSize(22);
+                    savedMsg.setFillColor(sf::Color(0, 100, 0));
+                    savedMsg.setString("Puntaje guardado correctamente");
+                    FloatRect sb = savedMsg.getLocalBounds();
+                    savedMsg.setOrigin(sb.left + sb.width * 0.5f, sb.top + sb.height * 0.5f);
+                    savedMsg.setPosition(window.getSize().x * 0.5f, buttonY + 70.f);
+                    window.draw(savedMsg);
+                }
             }
+
 
             // 🔸 Consumación del highlight de especiales
             if (waitingSpecial && !board.isHighlightActive()) {
