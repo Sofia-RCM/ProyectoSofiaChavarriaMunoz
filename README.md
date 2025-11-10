@@ -115,15 +115,13 @@ Clase Gem (abstracta)
 
 Créditos y autoría
 
-    Autora: Sofía Chavarría
+    Autora: Sofía Chavarría Muñoz
 
-    Institución: Universidad Nacional de Costa Rica
+    Institución: Universidad Nacional 
 
-    Curso: Programación Orientada a Objetos (Etapa 3)
+    Curso: Programación 1
 
     Lenguaje: C++ con SFML 2.6.1
-
-    Fecha de finalización: Noviembre 2025
 
 Estado del repositorio
 
