@@ -79,7 +79,7 @@ Match3-StudioGhibli/
 └── LICENSE (opcional)
 ```
  ##Diagrama de clases (resumen textual)
-``
+```
 Clase Game
  ├── Atributos: board, puntuación, nivel, contadores de gemas
  ├── Métodos: run(), startGame(), nextLevel(), updateHUD(), checkLevelAdvance()
@@ -99,19 +99,18 @@ Clase Gem (abstracta)
  │   ├── PartiGem       → elimina 3 filas y 3 columnas
  │   ├── GalletaGem     → elimina una fila completa
  │   ├── IceGem         → requiere golpes para romperse
-`
-Créditos y autoría
+```
+## Licencia
+Este proyecto es desarrollado para fines académicos en la Universidad Nacional
 
-    Autora: Sofía Chavarría Muñoz
+## Créditos y autoría
+- Autora: Sofía Chavarría Muñoz
+- Institución: Universidad Nacional 
+- Curso: Programación 1
+- Lenguaje: C++ con SFML 2.6.1
 
-    Institución: Universidad Nacional 
-
-    Curso: Programación 1
-
-    Lenguaje: C++ con SFML 2.6.1
-
-Estado del repositorio
-
+## Estado del repositorio
+```
 Rama principal: main
 Rama de desarrollo: develop
 
