@@ -18,7 +18,7 @@ El juego incluye **gemas especiales, animaciones visuales, efectos de resaltado 
 1. Clona el repositorio:
    ```bash
    git clone https://github.com/TU_USUARIO/Match3-StudioGhibli.git
-2.Abre la solución ProyectoSofiaChavarria.sln en Visual Studio.
+ 2.Abre la solución ProyectoSofiaChavarria.sln en Visual Studio.
 Asegúrese de que la carpeta assets/ se encuentre en la misma ruta que el ejecutable (.exe).
 Dentro de assets/ deben estar las imágenes de las gemas y los fondos:
 assets/
