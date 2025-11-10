@@ -49,7 +49,7 @@ El juego es un *Match-3* ambientado en el universo de **Studio Ghibli**, donde e
  6. El juego termina cuando se completan los tres niveles o se agotan los movimientos.
 
 ## Estructura del proyecto
-
+```plaintext
 Match3-StudioGhibli/
 │
 ├── assets/                # Imágenes y recursos visuales
