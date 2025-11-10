@@ -7,13 +7,12 @@ El juego es un *Match-3* ambientado en el universo de **Studio Ghibli**, donde e
 
 ## Instrucciones de instalación
 
-1. **Clonar el repositorio**
+1. Clonar el repositorio
    ```bash
    git clone https://github.com/tuusuario/Match3-StudioGhibli.git
 
 2. Abrir el proyecto en Visual Studio 2022 o superior
-
-        Asegúrese de que la carpeta assets/ se encuentre en la misma ruta que el ejecutable (.exe).
+  - Asegúrese de que la carpeta assets/ se encuentre en la misma ruta que el ejecutable (.exe).
 
         Dentro de assets/ deben estar las imágenes de las gemas y los fondos:
 
