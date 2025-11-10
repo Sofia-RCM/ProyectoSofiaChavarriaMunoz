@@ -40,21 +40,15 @@ El juego es un *Match-3* ambientado en el universo de **Studio Ghibli**, donde e
  - Seleccionar la configuración Release.
  -  Compilar y ejecutar con Ctrl + F5 desde Visual Studio.
 
-Instrucciones de uso
+ ## Instrucciones de uso
+ 1. Al ejecutar el programa, aparecerá el menú principal.
+ 2. Presione Jugar para iniciar la partida.
+ 3. Intercambie gemas adyacentes con el mouse para formar combinaciones de tres o más del mismo tipo.
+ 4. Al lograr combinaciones de cuatro o más, se generan gemas especiales con efectos únicos.
+ 5. Cumpla los objetivos de cada nivel, como eliminar cierta cantidad de gemas Totoro o romper gemas de hielo.
+ 6. El juego termina cuando se completan los tres niveles o se agotan los movimientos.
 
-    Al ejecutar el programa, aparecerá el menú principal.
-
-    Presione Jugar para iniciar la partida.
-
-    Intercambie gemas adyacentes con el mouse para formar combinaciones de tres o más del mismo tipo.
-
-    Al lograr combinaciones de cuatro o más, se generan gemas especiales con efectos únicos.
-
-    Cumpla los objetivos de cada nivel, como eliminar cierta cantidad de gemas Totoro o romper gemas de hielo.
-
-    El juego termina cuando se completan los tres niveles o se agotan los movimientos.
-
-Estructura del proyecto
+## Estructura del proyecto
 
 Match3-StudioGhibli/
 │
