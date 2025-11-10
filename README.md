@@ -77,9 +77,9 @@ Match3-StudioGhibli/
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE (opcional)
-
-Diagrama de clases (resumen textual)
-
+```
+ ##Diagrama de clases (resumen textual)
+``
 Clase Game
  ├── Atributos: board, puntuación, nivel, contadores de gemas
  ├── Métodos: run(), startGame(), nextLevel(), updateHUD(), checkLevelAdvance()
@@ -99,7 +99,7 @@ Clase Gem (abstracta)
  │   ├── PartiGem       → elimina 3 filas y 3 columnas
  │   ├── GalletaGem     → elimina una fila completa
  │   ├── IceGem         → requiere golpes para romperse
-
+`
 Créditos y autoría
 
     Autora: Sofía Chavarría Muñoz
