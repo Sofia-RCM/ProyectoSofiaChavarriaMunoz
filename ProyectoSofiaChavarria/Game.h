@@ -55,6 +55,9 @@ private:
     // --- Selección ---
     int selR = -1, selC = -1;
 
+    // --- NUEVO: esperando highlight especial ---
+    bool waitingSpecial = false;
+
     // --- Métodos internos ---
     void updateHUD();
     static void coverSpriteToWindow(sf::Sprite& spr, const sf::Vector2u& win);

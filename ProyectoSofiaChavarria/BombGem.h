@@ -1,9 +1,0 @@
-#pragma once
-#include "Gem.h"
-
-class BombGem : public Gem {
-public:
-    BombGem(); // Declaración del constructor
-    void setTipoGem(const std::string& tipo) override;
-    void onMatch(Board& board, int row, int col) override;
-};

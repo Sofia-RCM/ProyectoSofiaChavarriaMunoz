@@ -134,15 +134,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="BombGem.cpp" />
     <ClCompile Include="GalletaGem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GatoGem.cpp" />
     <ClCompile Include="Gem.cpp" />
     <ClCompile Include="IceGem.cpp" />
-    <ClCompile Include="Level.cpp" />
-    <ClCompile Include="NormalGem.cpp" />
-    <ClCompile Include="Objective.cpp" />
     <ClCompile Include="PartiGem.cpp" />
     <ClCompile Include="PonyoGem.cpp" />
     <ClCompile Include="ProyectoSofiaChavarria.cpp" />
@@ -150,15 +146,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="BombGem.h" />
     <ClInclude Include="GalletaGem.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GatoGem.h" />
     <ClInclude Include="Gem.h" />
     <ClInclude Include="IceGem.h" />
-    <ClInclude Include="Level.h" />
-    <ClInclude Include="NormalGem.h" />
-    <ClInclude Include="Objective.h" />
     <ClInclude Include="PartiGem.h" />
     <ClInclude Include="PonyoGem.h" />
     <ClInclude Include="TotoroGem.h" />

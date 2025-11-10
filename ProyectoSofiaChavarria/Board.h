@@ -40,12 +40,20 @@ private:
     };
     std::vector<Flash> flashes;
 
+    // --- NUEVO: Resaltado de celdas para gemas especiales ---
+    std::vector<std::pair<int, int>> highlightCells;
+    float highlightTimer = 0.f;
+    float highlightDuration = 0.f;
+    bool highlightActive = false;
+    sf::Color highlightColor = sf::Color(100, 255, 120, 180); // verde claro visible
+
     // Contadores enlazados con Game
     int* pTotoroCount = nullptr;
     int* pIceCount = nullptr;
     int* pPonyoCount = nullptr;
 
-void createSpecialAt(int r, int c, const std::string& tipoBase);
+    void createSpecialAt(int r, int c, const std::string& tipoBase);
+
 public:
     Board();
     ~Board();
@@ -79,6 +87,15 @@ public:
     void updateFlashes(float dt);
     void drawFlashes(sf::RenderWindow& window);
 
+    // --- NUEVO: Ciclo de resaltado visible ---
+    void startHighlight(const std::vector<std::pair<int, int>>& cells,
+        float durationSec = 0.45f,
+        sf::Color color = sf::Color(100, 255, 120, 180));
+    void updateHighlight(float dt);
+    void drawHighlight(sf::RenderWindow& window);
+    bool isHighlightActive() const { return highlightActive; }
+    int clearHighlightedCells();
+
     // --- Gestión de gemas ---
     bool isValid(int r, int c) const;
     void setGem(int r, int c, Gem* g);
@@ -102,7 +119,4 @@ public:
     int windowSize() const { return N * CELL; }
     int cellSize() const { return CELL; }
     sf::Vector2f getOffset() const { return offset; }
-
-
-    
 };
