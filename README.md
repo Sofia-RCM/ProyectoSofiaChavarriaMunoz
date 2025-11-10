@@ -13,8 +13,7 @@ El juego es un *Match-3* ambientado en el universo de **Studio Ghibli**, donde e
 
 2. Abrir el proyecto en Visual Studio 2022 o superior
   - Asegúrese de que la carpeta assets/ se encuentre en la misma ruta que el ejecutable (.exe).
-
-        Dentro de assets/ deben estar las imágenes de las gemas y los fondos:
+  -  Dentro de assets/ deben estar las imágenes de las gemas y los fondos:
 
     assets/
     ├── gemaTotoro.png
