@@ -139,9 +139,11 @@
     <ClCompile Include="GatoGem.cpp" />
     <ClCompile Include="Gem.cpp" />
     <ClCompile Include="IceGem.cpp" />
+    <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="PartiGem.cpp" />
     <ClCompile Include="PonyoGem.cpp" />
     <ClCompile Include="ProyectoSofiaChavarria.cpp" />
+    <ClCompile Include="Ranking.cpp" />
     <ClCompile Include="TotoroGem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,8 +153,10 @@
     <ClInclude Include="GatoGem.h" />
     <ClInclude Include="Gem.h" />
     <ClInclude Include="IceGem.h" />
+    <ClInclude Include="LevelData.h" />
     <ClInclude Include="PartiGem.h" />
     <ClInclude Include="PonyoGem.h" />
+    <ClInclude Include="Ranking.h" />
     <ClInclude Include="TotoroGem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

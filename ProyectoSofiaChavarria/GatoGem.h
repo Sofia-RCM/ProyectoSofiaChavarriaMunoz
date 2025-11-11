@@ -1,9 +1,9 @@
 #pragma once
 #include "Gem.h"
+#include "Board.h"
 
 class GatoGem : public Gem {
 public:
     GatoGem();
-    void setTipoGem(const std::string& tipo) override;
-    void onMatch(Board& board, int row, int col) override;
+    virtual void onMatch(Board& board, int row, int col) override;
 };

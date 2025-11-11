@@ -1,0 +1,5 @@
+crid 5790
+jao 4090
+lili 3010
+sail 2600
+sofia 1500

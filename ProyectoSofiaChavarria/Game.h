@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "Board.h"
+#include "Ranking.h"
+
 
 enum class GameState {
     Menu, Playing, Swapping, Clearing, Falling, GameOver, WinAll
@@ -14,6 +16,21 @@ public:
     void run();
 
 private:
+    // --- Progreso de niveles ---
+    bool nivel1Unlocked = true;
+    bool nivel2Unlocked = false;
+    bool nivel3Unlocked = false;
+    bool nivel1Completado = false;
+    bool nivel2Completado = false;
+    bool nivel3Completado = false;
+
+    // --- Funciones para guardar/cargar progreso ---
+    void loadProgress();
+    void saveProgress();
+
+    Ranking ranking;
+
+
     // --- Estado general ---
     int state = 0;
     GameState gameState = GameState::Menu;
