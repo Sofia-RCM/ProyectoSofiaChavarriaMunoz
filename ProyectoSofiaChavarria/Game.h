@@ -14,6 +14,18 @@ public:
     void run();
 
 private:
+    bool nivel1Unlocked = true;
+    bool nivel2Unlocked = false;
+    bool nivel3Unlocked = false;
+
+    bool nivel1Completado = false;
+    bool nivel2Completado = false;
+    bool nivel3Completado = false;
+
+    void loadProgress();
+    void saveProgress();
+
+
     Ranking ranking;
     // --- Estado general ---
     int state = 0;
