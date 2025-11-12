@@ -142,6 +142,7 @@
     <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="PartiGem.cpp" />
     <ClCompile Include="PonyoGem.cpp" />
+    <ClCompile Include="ProgressManager.cpp" />
     <ClCompile Include="ProyectoSofiaChavarria.cpp" />
     <ClCompile Include="Ranking.cpp" />
     <ClCompile Include="TotoroGem.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="LevelData.h" />
     <ClInclude Include="PartiGem.h" />
     <ClInclude Include="PonyoGem.h" />
+    <ClInclude Include="ProgressManager.h" />
     <ClInclude Include="Ranking.h" />
     <ClInclude Include="TotoroGem.h" />
   </ItemGroup>

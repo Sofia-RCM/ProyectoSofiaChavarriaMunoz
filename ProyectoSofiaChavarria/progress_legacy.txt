@@ -1,0 +1,3 @@
+nivel1=1
+nivel2=0
+nivel3=0
