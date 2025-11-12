@@ -27,7 +27,7 @@ El juego es un *Match-3* inspirado en el universo de **Studio Ghibli**, donde el
 2. **Abrir el proyecto en Visual Studio 2022 o superior**
  -Asegúrese de que la carpeta assets/ esté en la misma ruta que el ejecutable (.exe).
  -Dentro de assets/ deben estar las imágenes de las gemas, los fondos y los archivos auxiliares:
-´´´
+```
 assets/
 ├── gemaTotoro.png
 ├── gemaPonyo.png
@@ -38,17 +38,17 @@ assets/
 ├── FondoM.png
 ├── Fondo2.png
 ├── fuente.ttf (opcional, se usa Arial si no está)
-´´´
+```
 3. **Configurar SFML**
 -En Propiedades del proyecto → C/C++ → General, añadir la ruta de inclusión de SFML (include).
 -En Propiedades → Vinculador → General, añadir la ruta de las librerías SFML (lib).
 -En Propiedades → Vinculador → Entrada, agregar las siguientes librerías:
 
-´´´
+```
 sfml-graphics.lib
 sfml-window.lib
 sfml-system.lib
-´´´
+```
 -En la carpeta del ejecutable (por ejemplo, x64/Debug o x64/Release), copiar las DLL de SFML correspondientes.
 4. **Compilar y ejecutar**
 -Seleccionar la configuración Release.
@@ -76,7 +76,7 @@ sfml-system.lib
 7. Al finalizar, aparecerá una pantalla con puntaje, ranking y botones para reiniciar, volver al menú o salir.
 
 ## Estructura del proyecto
-´´´
+```
 Match3-StudioGhibli/
 │
 ├── assets/                # Imágenes y recursos visuales
@@ -108,9 +108,9 @@ Match3-StudioGhibli/
 ├── README.md
 └── CHANGELOG.md
 
-´´´
+```
 ## Diagrama de clases (resumen textual)
-´´´
+```
 Clase Game
  ├── Atributos: board, puntuación, nivel, contadores de gemas, ProgressManager
  ├── Métodos: run(), startGame(), nextLevel(), updateHUD(), checkLevelAdvance(), drawFinalScreen()
@@ -131,25 +131,24 @@ Clase Gem (abstracta)
  │   ├── PartiGem       → elimina 3 filas y 3 columnas
  │   ├── GalletaGem     → elimina una fila completa
  │   ├── IceGem         → obstáculo con 2 golpes de resistencia
-´´´
-
+```
 ## Lógica de progreso
 
 Cada jugador tiene su propio progreso almacenado en progress.txt:
-´´´
+```
 Sophie=3
 Lily=2
 Cris=1
 
-´´´
+```
 -Si el nombre no existe, se crea y empieza desde el nivel 1.
 -Si el nombre ya existe, puede continuar desde el último nivel desbloqueado.
 -Los datos del ranking se guardan en ranking.txt con el formato:
-´´´
+```
 Sophie 1200
 Lily 900
 Cris 780
-´´´
+```
 
 
 ## Créditos y autoría
@@ -160,7 +159,7 @@ Lenguaje: C++ con SFML 2.6.1
 Docente: Alejandro Flores Quesada
 
 ## Estado del repositorio
-´´´
+```
 Rama principal: main
 Rama de desarrollo: develop
 
@@ -169,12 +168,12 @@ Versiones etiquetadas:
 - v2.0: Gemas especiales y polimorfismo
 - v3.0: Obstáculos, efectos y transición de niveles
 - v4.0: Sistema de progreso por jugador y menú interactivo final
+```
 
-´´´
 ## Licencia
 
 Este proyecto se desarrolló con fines académicos en la Universidad Nacional (UNA).
 El uso del código está permitido únicamente para propósitos educativos y de aprendizaje.
 
 ## Vista Previa
-![Menu del juedo](C:/Users/sofia/OneDrive/Pictures/Screenshots/Screenshot 2025-11-12 005853.png)
+![Menu del juedo]("C:/Users/sofia/OneDrive/Pictures/Screenshots/Screenshot 2025-11-12 005853.png")
