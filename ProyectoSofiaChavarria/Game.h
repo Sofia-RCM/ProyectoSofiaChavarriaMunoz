@@ -29,6 +29,7 @@ private:
     void saveProgress();
 
     Ranking ranking;
+    void showLevelTransition(sf::RenderWindow& window, int nextLevel);
 
 
     // --- Estado general ---
@@ -57,9 +58,9 @@ private:
 
     // --- Niveles ---
     int currentLevel = 1;
-    const int TOTORO_GOAL = 30;
+    const int TOTORO_GOAL = 20;
     const int ICE_GOAL = 10;
-    const int PONYO_GOAL = 20;
+    const int PONYO_GOAL = 30;
 
     int totoroCleared = 0;
     int iceCleared = 0;
@@ -79,10 +80,10 @@ private:
     void updateHUD();
     static void coverSpriteToWindow(sf::Sprite& spr, const sf::Vector2u& win);
     void startGame();
-    void nextLevel();
-    void checkLevelAdvance();
-    void processCascadesOnce();
+    void nextLevel(sf::RenderWindow& window);
+    void checkLevelAdvance(sf::RenderWindow& window);
+    void processCascadesOnce(sf::RenderWindow& window);
 
-    // --- Animación de transición de nivel ---
-    void showLevelTransition(sf::RenderWindow& window, int nextLevel);
+
+
 };

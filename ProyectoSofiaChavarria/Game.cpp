@@ -23,11 +23,11 @@ void Game::updateHUD() {
 
     std::string objText;
     if (currentLevel == 1)
-        objText = "Objetivo: " + std::to_string(totoroCleared) + "/30 Totoro";
+        objText = "Objetivo: " + std::to_string(totoroCleared) + "/20 Totoro";
     else if (currentLevel == 2)
         objText = "Objetivo: " + std::to_string(iceCleared) + "/10 Hielo";
     else if (currentLevel == 3)
-        objText = "Objetivo: " + std::to_string(ponyoCleared) + "/20 Ponyo";
+        objText = "Objetivo: " + std::to_string(ponyoCleared) + "/30 Ponyo";
 
     objectiveText.setString(objText);
 }
@@ -62,24 +62,44 @@ void Game::startGame() {
     }
     updateHUD();
 }
-
-void Game::nextLevel() {
-    sf::Clock clock;
-    float fade = 0.f;
-
-    sf::RenderWindow temp(VideoMode(880, 930), "Match Studio Ghibli");
-    temp.setFramerateLimit(60);
-    sf::RectangleShape overlay(Vector2f(temp.getSize().x, temp.getSize().y));
-    overlay.setFillColor(Color(0, 0, 0, 0));
-
-    while (fade < 255) {
-        fade += 400 * clock.restart().asSeconds();
-        overlay.setFillColor(Color(0, 0, 0, (int)fade));
-        temp.clear(Color::Black);
-        temp.draw(overlay);
-        temp.display();
+void Game::nextLevel(sf::RenderWindow& window) {
+    // --- Mostrar pantalla de carga tipo "transición" ---
+    sf::Font font;
+    // Intentar cargar fuente del proyecto, y si no existe, usar la del sistema
+    if (!font.loadFromFile("assets/fuente.ttf") &&
+        !font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
+        throw std::string("Error: No se pudo cargar ninguna fuente válida (ni 'assets/fuente.ttf' ni Arial)");
     }
 
+    // Texto dinámico con número de nivel
+    std::string msg = "Cargando nivel " + std::to_string(currentLevel + 1) + "...";
+    sf::Text loading;
+    loading.setFont(font);
+    loading.setString(msg);
+    loading.setCharacterSize(46);
+    loading.setFillColor(sf::Color(30, 90, 30)); // Verde Ghibli
+    loading.setStyle(sf::Text::Bold);
+
+    // Fondo color cremita
+    sf::RectangleShape background(sf::Vector2f(window.getSize().x, window.getSize().y));
+    background.setFillColor(sf::Color(240, 230, 210)); // crema suave
+
+    // Centrar correctamente
+    sf::FloatRect textBounds = loading.getLocalBounds();
+    loading.setOrigin(textBounds.left + textBounds.width / 2.f,
+        textBounds.top + textBounds.height / 2.f);
+    loading.setPosition(window.getSize().x / 2.f, window.getSize().y / 2.f);
+
+    // Mostrar pantalla de transición
+    window.clear(sf::Color(240, 230, 210));
+    window.draw(background);
+    window.draw(loading);
+    window.display();
+
+    // Mantener visible antes de cargar el siguiente nivel
+    sf::sleep(sf::seconds(2.f));
+
+    // --- Lógica normal de cambio de nivel ---
     if (currentLevel >= 3) {
         state = 2;
         gameOver = true;
@@ -96,6 +116,7 @@ void Game::nextLevel() {
     ponyoCleared = 0;
     board.setCounters(&totoroCleared, &iceCleared, &ponyoCleared);
 
+    // ⚡ Este bloque tarda — por eso mostramos antes el mensaje
     board.fillBoard();
 
     int cleared = board.findAndClearMatches();
@@ -110,25 +131,26 @@ void Game::nextLevel() {
     updateHUD();
 }
 
-void Game::checkLevelAdvance() {
+
+
+void Game::checkLevelAdvance(sf::RenderWindow& window) {
     bool done = false;
     if (currentLevel == 1) done = (totoroCleared >= TOTORO_GOAL);
     else if (currentLevel == 2) done = (iceCleared >= ICE_GOAL);
     else if (currentLevel == 3) done = (ponyoCleared >= PONYO_GOAL);
 
-    if (done) nextLevel();
-
-    saveProgress(); // Guarda el nuevo progreso al ganar
-
+    if (done) nextLevel(window); 
 }
 
-void Game::processCascadesOnce() {
+
+void Game::processCascadesOnce(sf::RenderWindow& window) {
     int cleared = board.findAndClearMatches();
     if (cleared > 0) {
         punctuation += cleared * 10;
         board.applyGravityAndRefill();
         updateHUD();
-        checkLevelAdvance();
+        checkLevelAdvance(window);
+
     }
 }
 
@@ -251,7 +273,8 @@ void Game::run() {
                                         if (cleared > 0) { punctuation += cleared * 10; board.applyGravityAndRefill(); }
                                     } while (cleared > 0 && ++safety < 12);
 
-                                    checkLevelAdvance();
+                                    checkLevelAdvance(window);
+
                                     if (!gameOver && counter <= 0) { gameOver = true; state = 2; }
                                     updateHUD();
                                 }
@@ -306,7 +329,8 @@ void Game::run() {
                         if (more > 0) { punctuation += more * 10; board.applyGravityAndRefill(); }
                     } while (more > 0 && ++safety < 12);
                 }
-                checkLevelAdvance();
+                checkLevelAdvance(window);
+
                 if (!gameOver && counter <= 0) { gameOver = true; state = 2; }
                 updateHUD();
                 waitingSpecial = false;
@@ -529,3 +553,38 @@ void Game::saveProgress() {
     file.close();
 }
 
+void Game::showLevelTransition(sf::RenderWindow& window, int nextLevel) {
+    sf::RectangleShape fadeRect(sf::Vector2f(window.getSize()));
+    fadeRect.setFillColor(sf::Color(255, 240, 220, 0)); // Beige suave
+
+    sf::Font font;
+    font.loadFromFile("assets/arial.ttf");
+
+    sf::Text text("Nivel " + std::to_string(nextLevel), font, 60);
+    text.setFillColor(sf::Color(34, 102, 34)); // Verde Ghibli
+    sf::FloatRect tb = text.getLocalBounds();
+    text.setOrigin(tb.width / 2, tb.height / 2);
+    text.setPosition(window.getSize().x / 2.f, window.getSize().y / 2.f);
+
+    // Fundido de entrada
+    for (int alpha = 0; alpha <= 255; alpha += 5) {
+        fadeRect.setFillColor(sf::Color(255, 240, 220, alpha));
+        window.clear();
+        window.draw(fadeRect);
+        if (alpha > 120) window.draw(text);
+        window.display();
+        sf::sleep(sf::milliseconds(20));
+    }
+
+    sf::sleep(sf::seconds(1.5f));
+
+    // Fundido de salida
+    for (int alpha = 255; alpha >= 0; alpha -= 5) {
+        fadeRect.setFillColor(sf::Color(255, 240, 220, alpha));
+        window.clear();
+        window.draw(fadeRect);
+        if (alpha > 50) window.draw(text);
+        window.display();
+        sf::sleep(sf::milliseconds(15));
+    }
+}
