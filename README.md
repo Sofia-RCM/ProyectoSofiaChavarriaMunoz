@@ -176,4 +176,23 @@ Este proyecto se desarrolló con fines académicos en la Universidad Nacional (U
 El uso del código está permitido únicamente para propósitos educativos y de aprendizaje.
 
 ## Vista Previa
-![Menú del juego](assets/Screenshot2025-11-12.png)
+## 🎮 Vista previa del juego
+
+### 🟢 Menú principal
+![Menú principal](assets/Screenshot005853.png)
+
+### 🧩 Nivel en ejecución
+![Nivel en ejecución](assets/Screenshot005923.png)
+
+### 🏆 Pantalla de nivel completado
+![Nivel completado](assets/Screenshot010104.png)
+
+### 📋 Selección de niveles
+![Selección de niveles](assets/Screenshot010144.png)
+
+### 👤 Jugador con progreso guardado
+![Jugador con progreso](assets/Screenshot010220.png)
+
+### 🌿 Presentación inicial del juego
+![Pantalla inicial](assets/Screenshot010100.png)
+
