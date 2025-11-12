@@ -176,4 +176,4 @@ Este proyecto se desarrolló con fines académicos en la Universidad Nacional (U
 El uso del código está permitido únicamente para propósitos educativos y de aprendizaje.
 
 ## Vista Previa
-![Menu del juedo]("C:/Users/sofia/OneDrive/Pictures/Screenshots/Screenshot 2025-11-12 005853.png")
+![Menú del juego](assets/Screenshot2025-11-12.png)
