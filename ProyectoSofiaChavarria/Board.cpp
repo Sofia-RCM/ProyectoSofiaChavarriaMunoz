@@ -1,11 +1,11 @@
-#include "Board.h"
+﻿#include "Board.h"
 #include "TotoroGem.h"
 #include "PonyoGem.h"
 #include "PartiGem.h"
 #include "GatoGem.h"
 #include "GalletaGem.h"
 #include "IceGem.h"
-// �OJO!: sin #include "NormalGem.h"
+// ¡OJO!: sin #include "NormalGem.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -25,7 +25,7 @@ Board::~Board() {
             delete matrix[r][c];
 }
 
-// CONFIGURACI�N DE TABLERO
+// CONFIGURACIÓN DE TABLERO
 void Board::setOffset(float x, float y) {
     offset = { x, y };
     for (int r = 0; r < N; ++r)
@@ -182,7 +182,7 @@ void Board::updateHighlight(float dt)
     if (!highlightActive) return;
     highlightTimer += dt;
     if (highlightTimer >= highlightDuration) {
-        highlightActive = false; // El Game decidir� cu�ndo borrar
+        highlightActive = false; // El Game decidirá cuándo borrar
     }
 }
 
@@ -232,7 +232,7 @@ void Board::createSpecialAt(int r, int c, const std::string& tipoBase) {
     else if (tipoBase == "Parti") s = new PartiGem();
     else if (tipoBase == "Gato") s = new GatoGem();
     else if (tipoBase == "Galleta") s = new GalletaGem();
-    else s = new Gem(); // fallback (no deber�a ocurrir)
+    else s = new Gem(); // fallback (no debería ocurrir)
     s->setTipoGem(tipoBase + "Especial");
     s->setGrid(r, c, CELL, offset.x, offset.y);
     matrix[r][c] = s;
@@ -298,12 +298,36 @@ int Board::findAndClearMatches() {
             }
         }
     }
-
     // Eliminar marcadas
     for (int r = 0; r < N; ++r)
         for (int c = 0; c < N; ++c)
             if (mark[r][c] && matrix[r][c]) {
                 matrix[r][c]->onMatch(*this, r, c);
+
+                // 💥 Daño a bloques de hielo adyacentes
+                const int dirs[4][2] = { {1,0}, {-1,0}, {0,1}, {0,-1} };
+                for (auto& d : dirs) {
+                    int nr = r + d[0];
+                    int nc = c + d[1];
+                    if (nr >= 0 && nr < N && nc >= 0 && nc < N && matrix[nr][nc]) {
+                        // Si hay una IceGem adyacente, recibe un golpe
+                        if (matrix[nr][nc]->getTipoGem() == "Ice") {
+                            IceGem* ice = dynamic_cast<IceGem*>(matrix[nr][nc]);
+                            if (ice) {
+                                ice->receiveHit();
+
+                                // Si el hielo se rompió, marcarlo para limpiar y regenerar
+                                if (ice->isBroken()) {
+                                    markForClear(nr, nc);
+                                    ++cleared;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                //  Efecto visual (explosión)
                 Explosion e;
                 e.position = sf::Vector2f(offset.x + c * CELL + CELL * 0.5f,
                     offset.y + r * CELL + CELL * 0.5f);
@@ -311,11 +335,13 @@ int Board::findAndClearMatches() {
                 e.lifetime = 0.5f;
                 e.active = true;
                 explosions.push_back(e);
+
                 markForClear(r, c);
                 ++cleared;
             }
 
     return cleared;
+
 }
 
 // GRAVEDAD + RELLENO

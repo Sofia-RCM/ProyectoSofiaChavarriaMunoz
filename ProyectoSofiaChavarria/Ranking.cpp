@@ -41,3 +41,9 @@ void Ranking::sort() {
         return a.score > b.score;
         });
 }
+<<<<<<< HEAD
+=======
+std::vector<PlayerScore> Ranking::getScores() const {
+    return getTopScores(10); // devuelve los 10 mejores
+}
+>>>>>>> develop

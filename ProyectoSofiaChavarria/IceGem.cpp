@@ -12,9 +12,11 @@ IceGem::~IceGem() {}
 void IceGem::receiveHit() {
     if (empty) return;  // Si ya está rota, no hace nada
     health--;
-   
+
+
     if (health <= 0) {
         empty = true;
+        cout << " IceGem destruida." << endl;
     }
 }
 
@@ -23,6 +25,6 @@ bool IceGem::isBroken() const {
 }
 
 void IceGem::onMatch(Board& board, int row, int col) {
-    // Si una IceGem está dentro de un match, también se daña
+    // Si la IceGem está dentro de un match, recibe daño directo
     receiveHit();
 }

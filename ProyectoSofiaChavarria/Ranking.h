@@ -16,6 +16,11 @@ public:
     void save();
     void addScore(const std::string& name, int score);
     std::vector<PlayerScore> getTopScores(int n = 5) const;
+<<<<<<< HEAD
+=======
+    std::vector<PlayerScore> getScores() const;
+
+>>>>>>> develop
 private:
     void sort();
 };
