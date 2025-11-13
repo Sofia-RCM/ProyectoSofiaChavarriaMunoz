@@ -2,12 +2,40 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "Board.h"
+
 #include "Ranking.h"
 enum class GameState {
     Menu, Playing, Swapping, Clearing, Falling, GameOver, WinAll
 };
 
 class Game {
+
+using namespace sf;
+extern map<string, Texture> TEXTURES;
+
+class Game {
+private:
+    int punctuation;
+    int counter;
+    Board board;
+
+    bool gameOver = false;
+    Font font;
+    Text scoreText;
+    Text movesText;
+    Text overText;
+    bool hudOk = false;
+
+    int state = 0;
+    RectangleShape playButton;
+    Text playText;
+
+    Texture bgTexture;
+    Sprite bgSprite;
+
+    void updateHUD();
+
+
 public:
     Game();
     ~Game();
@@ -81,3 +109,7 @@ private:
     // --- Animación de transición de nivel ---
     void showLevelTransition(sf::RenderWindow& window, int nextLevel);
 };
+
+    bool loadTexture(const string& name, const string& path);
+};
+
